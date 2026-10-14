@@ -37,3 +37,5 @@ The agent's first signed report of an outcome fixes it. An abort is answered wit
 - Delivery initiated by the agent is an optional feature of each binding, used only when the requester advertises an endpoint.
 
 *Advice to implementers:* a principal who does not want response timing to reveal how it decides can add random delays.
+
+**R17. Receipts have one form.** A receipt states the signer's AID, what is receipted, and the signer's `dt`. An overture is receipted by its overture id together with the digest of its admitted content; a message is receipted by its SAID. A receipt carries no meaning field: what it means comes from who signs what. An agent's receipt of an overture is admission and acknowledgement of notice (R13). A requester's receipt of an outcome report is an optional acknowledgement and not a commitment. One message MAY carry receipts for several overtures. A receipt is its own small signed message or an attachment. It is not a KERI `rct`, which is reserved for key events. The `dt` on an agent's receipt of an overture is a claim against the agent's own interest, so it needs no anchoring.

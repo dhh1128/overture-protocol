@@ -76,12 +76,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 ## 6. Outcomes and evidence
 
-**R17. Receipts are one form.** A receipt consists of a signer AID, the SAID being receipted, a meaning from a closed set, and the signer's `dt`. The meanings are:
-- `notice`: an agent receipting a proposal.
-- `bound`: a newly created AID receipting the proposal it was created for.
-- `seen`: a requester acknowledging a disposition. Optional; not a commitment.
-
-A receipt is its own small signed message or an attachment, not a KERI `rct`, which is reserved for key events. The `dt` on a `notice` receipt is a claim against the agent's own interest, so it needs no anchoring.
+*R17 approved; see requirements.md. The `bound` receipt it described is gone: the evidence that a new AID was created for an overture belongs to that action's catalog entry (see R19).*
 
 **R18. Results can be checked with ordinary tools.** Every result is either a verifiable artifact (an ACDC, a KEL or TEL event, an IPEX exchange) or a reference that resolves to one, such as an AID's OOBI or a credential SAID plus its registry. Results are carried inline or by reference. Checking them needs nothing specific to Overture. A requester that keeps only the attached artifacts loses nothing it needs for verification.
 
