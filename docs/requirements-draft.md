@@ -70,17 +70,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 ## 5. Lifecycle
 
-**R15. States.**
-- *Refused before admission:* not a state. There is no record, and a later poll returns "unknown".
-- *Pending:* from the receipt onward.
-- *In progress:* accepted, with the action under way.
-- *Final dispositions:*
-  - `completed`, with attachments (§6).
-  - `declined`. No reason is given by default. This also covers a lapsed start-by and a failed prerequisite.
-  - `failed`: accepted, but did not succeed. Lateness alone is not failure.
-  - `aborted`: the requester's abort was honored. The disposition reports anything already done.
-
-The agent's first signed final disposition fixes the outcome. An abort is a request, and the agent answers it with whatever disposition is true at that point. Reasons are left out by default, because they let a stranger probe the principal's policy.
+*R15 approved; see requirements.md.*
 
 **R16. Polling.**
 - Only the AID that submitted a proposal can see its status. For anyone else it reads as "unknown".

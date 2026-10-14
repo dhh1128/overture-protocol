@@ -17,3 +17,13 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only w
 **R13. A signed receipt marks admission.** When an agent admits an overture, including one whose handling it defers (for example to quiet hours), it returns a receipt signed by the agent's AID. The receipt names the overture id, commits to the digest of the admitted content, and carries the time of admission. A receipt means the agent has agreed to treat the overture as a work item that later polls and aborts can refer to. It does not promise that the principal will act, or that an outcome will arrive within any time. The receipt is also the agent's non-repudiable acknowledgement that it has been given notice of the overture's content: someone reporting a lost license, for example, shifts responsibility from the time of notice, even if revocation takes longer.
 
 **R14. Overtures are referred to by overture id.** Polls, aborts and dependency links refer to an overture by its overture id, scoped to the requester's AID.
+
+**R15. States and outcomes.** An overture refused before admission has no state, and a later poll about it returns "unknown". After admission, its only visible state is *pending*, from the receipt until its outcome, for as long as that takes. It ends in exactly one outcome:
+- `completed`, with any evidence.
+- `declined`.
+- `expired`: its start-by time passed before it was acted on.
+- `failed`: it was agreed to, but did not succeed. Lateness alone is not failure.
+- `aborted`: the requester's abort was honored, and the report says anything already done.
+- `precluded`: a prerequisite did not succeed, so it was never acted on.
+
+The agent's first signed report of an outcome fixes it. An abort is answered with whatever state or outcome holds at that moment. Reasons are omitted by default, because they let a stranger probe the principal's policy, but a principal may choose to give them.
