@@ -72,3 +72,30 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 8erq0hp5
       why: >-
         A requester's signature on an exn covers only the body, never the CESR attachment groups that follow it, so an attachment is under that signature only if the body names it by SAID. The body MUST so commit to each attached overture (4uvlnnx4) and each item of authority evidence (GCD chains, delegation KELs) the overture relies on, because swapping either changes what the overture asserts or exposes a credential the requester did not choose to present. KELs attached for first contact need no commitment, because a KEL verifies itself; leaving them uncommitted also lets a relay or agent supply fresher key state while an overture waits. Dependency links are body fields, not attachments. An attachment the body does not name carries no claim by the requester. We rejected committing to every attachment, because it freezes key state at signing and adds bytes for no security gain, and rejected committing to none, because it lets anyone on the path change what the overture claims. Tradeoff accepted: two kinds of attachment follow two rules, and each new kind must be placed in one.
+
+# Terms. One term per concept; `i glossary` renders these. A term is defined here, not in the requirements.
+
+facet = term:
+  id: 7v6n52dz
+  definition: >-
+    One of the many aspects in which a single entity acts, kept isolated from its other facets, so that only the entity decides who may learn that two facets are the same entity. Each facet has its own AID, and a principal is always one facet. See Identity Facets, https://dhh1128.github.io/papers/if.html.
+overture = term:
+  id: 2q2c2dfl
+  definition: >-
+    A signed request from a requester asking a principal to take exactly one action. Its overture id, chosen by the requester and scoped to the requester's AID, is what makes two sends the same overture (69tz0ngx, 4g7vjv8w).
+batch = term:
+  id: 54m97zvg
+  definition: >-
+    A single message that carries one or more overtures. Overtures in a batch may depend on one another through dependency links, but each keeps its own lifecycle, and a batch is never all-or-nothing (8zysn4nv).
+outcome = term:
+  id: 8hf8lm3p
+  definition: >-
+    What became of an overture: the principal acted on it or declined it, or it ended by an event such as expiry or an honored abort. The agent reports the outcome, with any evidence, in its last message about that overture (0d2s9emg).
+endpoint = term:
+  id: 75jkh39e
+  definition: >-
+    The location a requester sends to: the URL a principal's agent publishes by a /loc/scheme reply, which is the agent's general KERI ingress. Any agent AID the principal has authorized there by /end/role/add may answer. This differs from KERI's sense, in which an endpoint is identified by one eid (2mgg0fn7).
+behind the counter = term:
+  id: 66u9sk4r
+  definition: >-
+    Everything between the agent and the principal, such as a policy engine, escalation to the principal, or nested layers of agents. The requester deals only with whoever answers at the endpoint, as a customer deals with whoever stands at a service counter, and the protocol never discloses what is behind it.
