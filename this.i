@@ -83,6 +83,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 0u4svfnq
       why: >-
         Every message that refers to overtures by overture id, whether a poll, an abort, or the agent's status or outcome report, MAY refer to several overtures at once. Each referenced overture is still answered or acted on separately, and nothing is all-or-nothing: an abort naming three overtures may find one already done and withdraw the other two, and the reply says so for each. Such a message is not a batch, because a batch carries overtures, and these refer to overtures that already exist; an abort is not an overture, since it asks nothing of the principal. We rejected one message per overture, because a requester with many pending overtures would pay a round trip for each. Tradeoff accepted: each such message needs a per-overture structure in its reply.
+    The agent may suggest when to poll next = decision:
+      nid: 0jjt97xh
+      why: >-
+        A receipt and every later status report MAY carry a suggested time for the requester's next poll. It is never required, and the requester need not honor it; its purpose is to spare both sides a poll every few seconds while nothing can happen, as HTTP's Retry-After does. Because the agent computes it from what is behind the counter, it can reveal who decides or when a person is available, so it SHOULD NOT reveal behind-the-counter facts, and agents are advised to give coarse or jittered values. We rejected MUST NOT, because a principal may not care who learns how it decides, and that choice is the principal's. We rejected leaving polling cadence wholly to the requester, because only the agent knows when an answer is plausible. Tradeoff accepted: an agent that follows a principal's wish to be open about its process may disclose it through this field.
 facet = term:
   id: 7v6n52dz
   definition: >-
