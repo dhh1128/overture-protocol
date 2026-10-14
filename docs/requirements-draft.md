@@ -28,9 +28,9 @@ Out of scope:
 
 ## 3. Proposals
 
-**R1. A proposal is a self-addressing signed artifact.** Its SAID identifies it. It MUST be signed by the requester's AID, and it MUST remain verifiable with any transport stripped away. The signature MUST cover every artifact the proposal carries, not only the first.
+*R1 approved; see requirements.md.*
 
-**R2. A proposal is separate from the message that carries it.** A proposal's SAID never changes. The carrier is fresh for each send, so that transport-level freshness and replay mechanisms (such as KRAM) judge the carrier. A long-pending proposal can therefore be referred to and resubmitted without looking like a replay. A proposal MUST NOT be referenced by transaction mechanisms whose windows would expire while the proposal is still pending.
+*R2 approved; see requirements.md.*
 
 **R3. A proposal names its recipient.** It MUST name the principal AID it addresses, so that it cannot be replayed to a different agent or principal.
 
@@ -52,12 +52,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 **R8. Human-facing purpose.** Proposals that reach a person need a description of the purpose that the person can read. Because a stranger supplies it, the person approving MUST be able to see the exact signed proposal, never only a summary rendered from it. The purpose text is the requester's claim and a disclosure the requester answers for, not a gate. Structured action vocabularies (effect × state-kind, and later Syntelos) are preferred over free text where they suffice, and they make localization possible.
 
-**R9. One act per proposal; dependencies by link.**
-- A proposal names exactly one action.
-- A proposal MAY name others, by SAID, that must complete before it. The links form a dependency graph. Proposals with no link between them may be done in any order or at the same time.
-- A batch MAY carry any number of proposals. A prerequisite MUST be already known to the agent or included in the same batch. Cycles MUST be refused.
-- A proposal whose prerequisite ends in anything other than `completed` ends `declined`.
-- All-or-nothing atomicity and either/or alternatives are out of scope.
+*R9 approved; see requirements.md.*
 
 **R10. Attachments.** Proposals and dispositions MAY carry attachments through one general, CESR-encoded mechanism. Kinds include: a motivating proposal from a hop closer to the original requester, carried unaltered; dependency links; authority evidence (GCD chains, delegation KELs); KELs for first contact; and outcome artifacts.
 
@@ -69,7 +64,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 **R13. A signed receipt marks admission and gives notice.** When an agent admits a proposal (including one deferred, for example by quiet hours), it returns a receipt signed by the agent. The receipt commits to the proposal's SAID and the time of receipt. From then on the agent owes a final disposition. The receipt is also the agent's non-repudiable acknowledgement that it has been given notice. For example, someone reporting a lost license shifts responsibility from the time of notice, even if revocation takes longer.
 
-**R14. Tracking.** The proposal's SAID is its tracking id. It can be recomputed by anyone holding the proposal, so it needs no storage of its own.
+*R14 approved; see requirements.md. The advice below is still under review.*
 
 *Advice to implementers:* before admitting a cold proposal, an agent may require a stateless proof that the requester can receive replies, using a nonce of its own: a MAC over a time counter, the requester AID and the proposal SAID. Whatever key state the agent resolves for the requester MUST be the key state that signed the proposal.
 
