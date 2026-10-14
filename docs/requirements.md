@@ -27,3 +27,13 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only w
 - `precluded`: a prerequisite did not succeed, so it was never acted on.
 
 The agent's first signed report of an outcome fixes it. An abort is answered with whatever state or outcome holds at that moment. Reasons are omitted by default, because they let a stranger probe the principal's policy, but a principal may choose to give them.
+
+**R16. Polling.**
+- Only the requester AID that sent an overture can see its state or outcome. To anyone else it reads as "unknown".
+- A poll MAY name several overture ids. The response gives one state or outcome per id and is signed once.
+- "Unknown" is always a valid answer, even for an overture that was receipted. A requester that gets it may send the overture again under the same overture id.
+- An overture or a poll MAY carry a `wait` hint, asking the agent to hold the exchange open for up to N seconds. The agent returns the outcome inline if it has one, or else returns when any listed overture's state changes or the time runs out. The agent may always decline to hold the exchange open.
+- Receipts and status reports MAY carry a suggested time for the next poll.
+- Delivery initiated by the agent is an optional feature of each binding, used only when the requester advertises an endpoint.
+
+*Advice to implementers:* a principal who does not want response timing to reveal how it decides can add random delays.

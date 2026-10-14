@@ -72,14 +72,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 *R15 approved; see requirements.md.*
 
-**R16. Polling.**
-- Only the AID that submitted a proposal can see its status. For anyone else it reads as "unknown".
-- A poll MAY list many SAIDs. The response gives one status per SAID, and the whole response is signed once.
-- "Unknown" is always a valid answer, even for a proposal that was once receipted. A requester that gets it resubmits outside the polling path: the same body yields the same SAID, and a changed body is a new proposal.
-- A proposal or poll MAY carry a `wait` hint: hold the exchange open for up to N seconds. The agent returns the final disposition inline if it has one, or else returns when any listed proposal changes state or the time runs out. The agent may always decline to answer inline.
-- Push is an optional per-binding feature, used only when the requester advertises an endpoint.
-
-*Advice to implementers:* a principal who worries that response timing reveals whether policy or a person decided can add random delays.
+*R16 approved; see requirements.md.*
 
 ## 6. Outcomes and evidence
 
