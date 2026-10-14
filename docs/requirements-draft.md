@@ -94,7 +94,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 *R23 approved; see requirements.md.*
 
-**R24. Anchored signatures are not required.** Proposals are acted on when received, against key state at that time. Accountability for proposals comes from the records the parties keep, not from KEL anchoring.
+*R24 approved; see requirements.md.*
 
 ## 9. Test cases
 
