@@ -14,7 +14,7 @@ Overture is to an agent what the counter is to a shop. Anyone can walk up and as
 
 ## Status
 
-Requirements stage. The settled requirements are in [`docs/requirements.md`](docs/requirements.md). Message definitions, JSON Schemas, test vectors and a reference stand-in agent will follow.
+Requirements stage. Approved requirements are in [`docs/requirements.md`](docs/requirements.md), and those still under review are in [`docs/requirements-draft.md`](docs/requirements-draft.md). Message definitions, JSON Schemas, test vectors and a reference stand-in agent will follow.
 
 Overture is being designed under a clean-room process. See [`docs/provenance.md`](docs/provenance.md).
 

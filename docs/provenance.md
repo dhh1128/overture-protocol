@@ -23,7 +23,7 @@ A git commit SHA commits to the full content and history of the record up to tha
 
 ## What came from where
 
-Every requirement in [`requirements.md`](requirements.md) traces to one of four sources:
+Every requirement in [`requirements.md`](requirements.md) and [`requirements-draft.md`](requirements-draft.md) traces to one of four sources:
 - Daniel Hardman's own statements.
 - Public specifications: KERI, ACDC/IPEX, CESR, DIDComm v2, and the Aries RFCs.
 - Public Bakobo work: the GCD credential in [bakobo/schema](https://github.com/bakobo/schema), and [fiki](https://github.com/bakobo/fiki).
