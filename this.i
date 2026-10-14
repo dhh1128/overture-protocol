@@ -79,6 +79,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 7f9ydc0f
       why: >-
         An agent checks a batch before admitting any of it. If the batch is malformed (a dependency cycle, a prerequisite the agent does not know, the same overture id twice, or an overture whose signature or SAID commitments do not verify), the agent refuses the whole batch and admits none of it. A well-formed batch is still judged overture by overture: a policy refusal or decline of one ends only the overtures that depend on it (8zysn4nv). Malformation means the requester built the batch wrongly, so nothing in it can be trusted to mean what was intended. Whole refusal also keeps refusal cheap and stateless (R12), and lets the requester fix and resend under the same overture ids with no first-seen conflict, since nothing was admitted. We rejected admitting the well-formed part, because it could launch actions the requester believed were linked to ones that were dropped. Tradeoff accepted: one bad overture holds up unrelated good ones in the same batch, a cost borne by the requester that built it.
+    A message that refers to overtures may refer to several = decision:
+      nid: 0u4svfnq
+      why: >-
+        Every message that refers to overtures by overture id, whether a poll, an abort, or the agent's status or outcome report, MAY refer to several overtures at once. Each referenced overture is still answered or acted on separately, and nothing is all-or-nothing: an abort naming three overtures may find one already done and withdraw the other two, and the reply says so for each. Such a message is not a batch, because a batch carries overtures, and these refer to overtures that already exist; an abort is not an overture, since it asks nothing of the principal. We rejected one message per overture, because a requester with many pending overtures would pay a round trip for each. Tradeoff accepted: each such message needs a per-overture structure in its reply.
 facet = term:
   id: 7v6n52dz
   definition: >-
