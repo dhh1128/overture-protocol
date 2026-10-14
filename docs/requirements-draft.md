@@ -92,7 +92,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 *R22 approved; see requirements.md.*
 
-**R23. Requester continuity.** A requester's identity persists across proposals through its key. Requesters SHOULD start with a transferable direct-mode AID and attach its KEL to their first proposal. A requester that starts with an ephemeral non-transferable key and later moves to a transferable AID links the two with a single message signed by both keys and bound to one recipient. This is the KERI analogue of DIDComm v2's `from_prior`, with an audience binding and an explicit proof by the new key, both of which `from_prior` lacks.
+*R23 approved; see requirements.md.*
 
 **R24. Anchored signatures are not required.** Proposals are acted on when received, against key state at that time. Accountability for proposals comes from the records the parties keep, not from KEL anchoring.
 
