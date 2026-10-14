@@ -32,7 +32,7 @@ Out of scope:
 
 *R2 approved; see requirements.md.*
 
-**R3. A proposal names its recipient.** It MUST name the principal AID it addresses, so that it cannot be replayed to a different agent or principal.
+*R3 approved; see requirements.md.*
 
 **R4. Proposals are requests, never offers.** No action by the principal or agent can turn a proposal into a commitment by the requester. Any outcome that would bind the requester requires a separate signature by the requester, made after it has seen the outcome, either through the launched action's own countersignature step or an acknowledgement (R17).
 
