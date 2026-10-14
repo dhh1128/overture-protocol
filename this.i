@@ -87,6 +87,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 0jjt97xh
       why: >-
         A receipt and every later status report MAY carry a suggested time for the requester's next poll. It is never required, and the requester need not honor it; its purpose is to spare both sides a poll every few seconds while nothing can happen, as HTTP's Retry-After does. Because the agent computes it from what is behind the counter, it can reveal who decides or when a person is available, so it SHOULD NOT reveal behind-the-counter facts, and agents are advised to give coarse or jittered values. We rejected MUST NOT, because a principal may not care who learns how it decides, and that choice is the principal's. We rejected leaving polling cadence wholly to the requester, because only the agent knows when an answer is plausible. Tradeoff accepted: an agent that follows a principal's wish to be open about its process may disclose it through this field.
+    A requester sees one state, pending, and six outcomes = decision:
+      nid: 36j5xvln
+      why: >-
+        From admission until its outcome, an overture's only visible state is pending; an agent may track internally that the principal has agreed and the action is under way, but never shows it, because that would disclose a decision and its timing before anything is finished, and the requester could do nothing different with it. The outcomes are completed, declined, expired (its start-by passed before it was acted on), failed (agreed to but did not succeed), aborted (the requester's abort was honored), and precluded (a prerequisite did not succeed, so it was never acted on). Expired and precluded are separate from declined because they are events, not decisions (0d2s9emg). We rejected prevented for the last, because it suggests someone acted to stop the overture, and blocked, because it suggests the overture could later proceed. Tradeoff accepted: failed reveals after the fact that the principal agreed, kept because it tells the requester a retry may succeed where a decline would not.
 facet = term:
   id: 7v6n52dz
   definition: >-
