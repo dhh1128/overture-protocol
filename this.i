@@ -75,6 +75,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
 
 # Terms. One term per concept; `i glossary` renders these. A term is defined here, not in the requirements.
 
+    A malformed batch is refused whole = decision:
+      nid: 7f9ydc0f
+      why: >-
+        An agent checks a batch before admitting any of it. If the batch is malformed (a dependency cycle, a prerequisite the agent does not know, the same overture id twice, or an overture whose signature or SAID commitments do not verify), the agent refuses the whole batch and admits none of it. A well-formed batch is still judged overture by overture: a policy refusal or decline of one ends only the overtures that depend on it (8zysn4nv). Malformation means the requester built the batch wrongly, so nothing in it can be trusted to mean what was intended. Whole refusal also keeps refusal cheap and stateless (R12), and lets the requester fix and resend under the same overture ids with no first-seen conflict, since nothing was admitted. We rejected admitting the well-formed part, because it could launch actions the requester believed were linked to ones that were dropped. Tradeoff accepted: one bad overture holds up unrelated good ones in the same batch, a cost borne by the requester that built it.
 facet = term:
   id: 7v6n52dz
   definition: >-
