@@ -62,7 +62,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 **R12. Refusal before admission is free.** An agent MAY refuse a proposal it has not admitted without storing anything (beyond aggregate counters) and without signing anything. That includes silence. The protocol MUST NOT oblige an agent to store or sign anything about a proposal before admitting it. Implementations MAY store and sign more.
 
-**R13. A signed receipt marks admission and gives notice.** When an agent admits a proposal (including one deferred, for example by quiet hours), it returns a receipt signed by the agent. The receipt commits to the proposal's SAID and the time of receipt. From then on the agent owes a final disposition. The receipt is also the agent's non-repudiable acknowledgement that it has been given notice. For example, someone reporting a lost license shifts responsibility from the time of notice, even if revocation takes longer.
+*R13 approved; see requirements.md.*
 
 *R14 approved; see requirements.md. The advice below is still under review.*
 
