@@ -86,7 +86,7 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 *R20 approved; see requirements.md.*
 
-**R21. The decision path is never disclosed.** A principal's involvement becomes visible only on a resulting artifact that the act requires the principal to sign (a halftime contract needs the performer's signature, whoever was consulted along the way). Declining never needs escalation. An act the agent decides should go ahead, but which lies outside its signing authority, must involve the principal before it completes, and policy decides how and when. Escalation may be nested to any depth. Whoever signs MUST prove a chain of representation back to the principal.
+*R21 approved; see requirements.md.*
 
 ## 8. Authentication and transport
 
