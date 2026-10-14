@@ -60,13 +60,13 @@ An agent MUST NOT complete a proposal with a binding artifact that fails the sta
 
 ## 4. Admission and receipts
 
-**R12. Refusal before admission is free.** An agent MAY refuse a proposal it has not admitted without storing anything (beyond aggregate counters) and without signing anything. That includes silence. The protocol MUST NOT oblige an agent to store or sign anything about a proposal before admitting it. Implementations MAY store and sign more.
+*R12 approved; see requirements.md.*
 
 *R13 approved; see requirements.md.*
 
-*R14 approved; see requirements.md. The advice below is still under review.*
+*R14 approved; see requirements.md.*
 
-*Advice to implementers:* before admitting a cold proposal, an agent may require a stateless proof that the requester can receive replies, using a nonce of its own: a MAC over a time counter, the requester AID and the proposal SAID. Whatever key state the agent resolves for the requester MUST be the key state that signed the proposal.
+*The advice on cold admission moved to R12 in requirements.md.*
 
 ## 5. Lifecycle
 
