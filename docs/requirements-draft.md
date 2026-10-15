@@ -38,11 +38,8 @@ Out of scope:
 
 *R5 approved; see requirements.md.*
 
-**R6. Signer requirement.** A proposal MAY say which signer it will accept on a binding result:
-- `principal`: the principal's AID, or a KERI delegate of it created with the Delegate-Is-Delegator (`DID`) trait. This can be checked from KELs alone.
-- `representative` (the default): the principal, or any signer that proves a chain of representation to the principal. The chain may be a KERI delegation or a chain of GCD credentials linked through `issuer` edges.
+*R6 approved; see requirements.md.*
 
-An agent MUST NOT complete a proposal with a binding artifact that fails the stated requirement. It declines instead. Requesters apply any richer acceptance logic on their own side. The field is open to richer predicates later.
 
 **R7. Audience.** A proposal MAY name an audience (the AID of a downstream relying party) and carry that party's nonce, so that the resulting artifact can be bound to one act and one audience. The resulting artifact does the binding. Overture only carries the inputs. Audience is distinct from the party on whose behalf the requester acts; that is shown by the requester's own authority evidence, carried as an attachment.
 
