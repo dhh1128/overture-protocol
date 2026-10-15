@@ -143,6 +143,18 @@ endpoint = term:
   id: 75jkh39e
   definition: >-
     The location a requester sends to: the URL a principal's agent publishes by a /loc/scheme reply, which is the agent's general KERI ingress. Any agent AID the principal has authorized there by /end/role/add may answer. This differs from KERI's sense, in which an endpoint is identified by one eid (2mgg0fn7).
+requester = term:
+  id: 5dnehv9p
+  definition: >-
+    The party that sends an overture, identified by its AID (R23). Who controls that AID may remain unknown.
+agent = term:
+  id: 4m52t924
+  definition: >-
+    A party, identified by its AID, that receives overtures for exactly one principal and is the only party that answers the requester in Overture. The principal authorizes it as an endpoint, and may authorize several agents (0svwkvee). An agent refuses, before admission, an overture that references a principal it does not act for (R3).
+principal = term:
+  id: 2k8fxl77
+  definition: >-
+    The AID an agent acts for: one facet of whatever entity stands behind it. An overture references it (R3), but it never takes part in the protocol.
 behind the counter = term:
   id: 66u9sk4r
   definition: >-
