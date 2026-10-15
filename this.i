@@ -115,6 +115,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 6yusrcwc
       why: >-
         An overture may carry a purpose, text the requester writes for a person saying why it asks. It is the requester's claim, covered by its signature, and the requester answers for it; no agent checks it as a condition of admission. It is optional, because a requester cannot know whether its overture will reach a person, and an agent may decline one without it as its own policy. A standard description of what the action does comes from the action's catalog entry, not from the requester. How an agent shows an overture to its principal is behind the counter, so the rule that a person approving should see the exact signed overture, never only a summary rendered from it, is advice to implementers rather than a protocol requirement. We rejected making that a protocol requirement, because the protocol does not govern what happens behind the counter (66u9sk4r). Tradeoff accepted: the main defence against a requester using the purpose to mislead a person rests on implementations following advice.
+    Catalog entries sit on the GCD act grid = decision:
+      nid: 0nztkj2q
+      why: >-
+        Each action catalog entry has a stable identifier, a parameter schema, a description a person can read (6yusrcwc), and the (effect, state-kind) points the action occupies on the act grid that GCD credentials constrain through acts (https://github.com/bakobo/schema/blob/main/gcd/index.md); an action may occupy several points. Placing actions on that grid lets a policy engine behind the counter check an overture against a GCD without knowing Overture. New entries need no protocol change, and an agent refuses before admission an overture for an action it does not know, as it does an unknown precondition (83e2qr0z). We rejected an Overture-specific classification of actions, because GCD already defines one that delegates' authority is written in. Tradeoff accepted: the catalog depends on the GCD grid's vocabulary, and changes there reach the catalog.
 facet = term:
   id: 7v6n52dz
   definition: >-
