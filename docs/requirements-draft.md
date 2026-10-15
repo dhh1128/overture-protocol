@@ -46,7 +46,7 @@ Out of scope:
 
 *R9 approved; see requirements.md.*
 
-**R10. Attachments.** Proposals and dispositions MAY carry attachments through one general, CESR-encoded mechanism. Kinds include: a motivating proposal from a hop closer to the original requester, carried unaltered; dependency links; authority evidence (GCD chains, delegation KELs); KELs for first contact; and outcome artifacts.
+*R10 approved; see requirements.md.*
 
 **R11. The action catalog is extensible and fails closed.** Every action type has a stable identifier and a parameter schema, and is placed on the effect × state-kind grid so that a policy engine can evaluate it against GCD constraints without knowing Overture. An agent MUST refuse an unknown action.
 
