@@ -70,9 +70,9 @@ Out of scope:
 
 *R17 approved; see requirements.md. The `bound` receipt it described is gone: the evidence that a new AID was created for an overture belongs to that action's catalog entry (see R19).*
 
-**R18. Results can be checked with ordinary tools.** Every result is either a verifiable artifact (an ACDC, a KEL or TEL event, an IPEX exchange) or a reference that resolves to one, such as an AID's OOBI or a credential SAID plus its registry. Results are carried inline or by reference. Checking them needs nothing specific to Overture. A requester that keeps only the attached artifacts loses nothing it needs for verification.
+*R18 approved; see requirements.md.*
 
-**R19. Where the link is the result, the link is signed.** Sometimes the claim is the result's relationship to the proposal or the principal, for example "this new AID is the one created for our relationship, and it represents P". Then that relationship MUST be signed: by the new AID (a `bound` receipt) and/or by the agent's disposition. In that case the disposition is evidence, not just a convenience.
+*R19 retired; see requirements.md.*
 
 ## 7. Who signs what
 
