@@ -40,7 +40,6 @@ Out of scope:
 
 *R6 approved; see requirements.md.*
 
-
 **R7. Audience.** A proposal MAY name an audience (the AID of a downstream relying party) and carry that party's nonce, so that the resulting artifact can be bound to one act and one audience. The resulting artifact does the binding. Overture only carries the inputs. Audience is distinct from the party on whose behalf the requester acts; that is shown by the requester's own authority evidence, carried as an attachment.
 
 **R8. Human-facing purpose.** Proposals that reach a person need a description of the purpose that the person can read. Because a stranger supplies it, the person approving MUST be able to see the exact signed proposal, never only a summary rendered from it. The purpose text is the requester's claim and a disclosure the requester answers for, not a gate. Structured action vocabularies (effect × state-kind, and later Syntelos) are preferred over free text where they suffice, and they make localization possible.
