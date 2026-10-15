@@ -111,6 +111,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 35d29vn5
       why: >-
         A requester asking for a result bound to one downstream relying party (referenced by AID) and that party's nonce is saying in advance not to start unless the result can be bound that way, so audience is a precondition (83e2qr0z), advisory like the rest; the requester checks the binding itself. The result does the binding and the overture only carries the inputs. Audience is not the party on whose behalf the requester acts, which the requester's attached authority evidence shows (8erq0hp5). We rejected making audience a field of each catalog entry, because binding to an audience cuts across every action whose result is a signed artifact, as the signer requirement does (5yen7mup). Tradeoff accepted: an action whose result cannot bind an audience can only be declined when audience is set.
+    Purpose is the requester's signed claim, not a gate = decision:
+      nid: 6yusrcwc
+      why: >-
+        An overture may carry a purpose, text the requester writes for a person saying why it asks. It is the requester's claim, covered by its signature, and the requester answers for it; no agent checks it as a condition of admission. It is optional, because a requester cannot know whether its overture will reach a person, and an agent may decline one without it as its own policy. A standard description of what the action does comes from the action's catalog entry, not from the requester. How an agent shows an overture to its principal is behind the counter, so the rule that a person approving should see the exact signed overture, never only a summary rendered from it, is advice to implementers rather than a protocol requirement. We rejected making that a protocol requirement, because the protocol does not govern what happens behind the counter (66u9sk4r). Tradeoff accepted: the main defence against a requester using the purpose to mislead a person rests on implementations following advice.
 facet = term:
   id: 7v6n52dz
   definition: >-
