@@ -57,7 +57,7 @@ An overture without a signer precondition is treated as carrying `representative
 
 *Advice to implementers:* before admitting a cold overture, an agent may require a stateless proof that the requester can receive replies, using a nonce of its own: a MAC over a time counter, the requester's AID and the overture's SAID. Whatever key state the agent resolves for the requester MUST be the key state that signed the overture.
 
-**R13. A signed receipt marks admission.** When an agent admits an overture, including one whose handling it defers (for example to quiet hours), it returns a receipt signed by the agent's AID. The receipt references the overture by its SAID, which is the digest of the admitted content, and carries the time of admission. A receipt means the agent has agreed to treat the overture as a work item that later polls and aborts can refer to. It does not promise that the principal will act, or that an outcome will arrive within any time. The receipt is also the agent's non-repudiable acknowledgement that it has been given notice of the overture's content: someone reporting a lost license, for example, shifts responsibility from the time of notice, even if revocation takes longer.
+**R13. A signed receipt marks admission.** When an agent admits an overture, including one whose handling it defers (for example to quiet hours), it returns a receipt signed by the agent's AID. The receipt references the overture by its SAID, which is the digest of the admitted content, and carries the time of admission. A receipt means the agent has agreed to treat the overture as a work item that later polls and aborts can refer to. It does not promise that the principal will act, or that an outcome will arrive within any time. The receipt is also the agent's signed acknowledgement that it has been given notice of the overture's content. Like every Overture signature, it is ephemeral evidence: it shows what the agent said, judged against the agent's key state at the time. A claim that must outlive a rotation, such as notice that shifts liability for a lost license, belongs in a result anchored by its own mechanism.
 
 **R14. An overture is identified by its own SAID.** Every overture MUST carry a salty nonce of about 128 bits of entropy that the requester makes fresh for it, so two identical asks are two overtures and an overture's SAID reveals nothing about its content. An overture is identified by its own SAID, scoped to the requester's AID. Prerequisite links, polls, aborts, receipts and status reports reference it by that SAID.
 
@@ -87,7 +87,7 @@ The agent's first signed report of an outcome fixes it. An abort is answered wit
 - `admitted`: an agent has admitted the overture as a work item and acknowledges notice of its content (R13).
 - `seen`: the signer received the item. This is optional and is not a commitment.
 
-One message MAY carry receipts for several overtures. A receipt is its own small signed message or an attachment. It is not a KERI `rct`, which is reserved for key events. The `dt` on an `admitted` receipt is a claim against the agent's own interest, so it needs no anchoring.
+One message MAY carry receipts for several overtures. A receipt is its own small signed message or an attachment. It is not a KERI `rct`, which is reserved for key events.
 
 Every Overture message MUST state what its signature means, through its signed route, its signed field names, or a signed meaning field. A status report that gives an outcome states, for each result it names, that the result is a result of the overture. A result that can sign, such as a newly created AID, MAY state the same about itself, and an action's catalog entry MAY require that it does.
 
@@ -110,7 +110,7 @@ Every Overture message MUST state what its signature means, through its signed r
 - **Double-consent introduction** (after Aries RFC 0028). R asks agent A for P: "introduce me to T". A sends T's agent its own overture, attaching R's original unaltered (R10). This tests passing an overture on, an outer finish-by bounding the inner one, what T may learn about R before consenting, how the status reports R receives protect T's privacy, and a result that means "invitation delivered" rather than "relationship formed".
 - **"Start a protocol with me"**, using coin flip (Aries RFC 0193) as the example.
 - **"Challenge me"**: the agent opens an IPEX `apply`, with `p` linking back to the overture.
-- **Revoke and reissue** a license after loss: a prerequisite link (R9) and the `admitted` receipt as notice (R13, R17).
+- **Revoke and reissue** a license after loss: a prerequisite link (R9) and the `admitted` receipt as notice within the interaction (R13).
 - **A relationship AID**: an OOBI as the result, with the new AID stating that it is a result of the overture (R17).
 - **Preconditions**: an overture that finishes after its finish-by, which the requester judges; an overture carrying a precondition the agent does not understand, refused before admission (R5); and one where the `representative` default rules out a third-party signer (R6).
 
