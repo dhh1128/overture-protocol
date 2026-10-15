@@ -13,6 +13,7 @@ Sent by a requester to carry one or more overtures (a batch) to the principal.
 - `dt`: the send time, by which replay protection judges each send (R2).
 - `x`, `p`, `q`: empty.
 - `a.overtures`: a list of one or more overtures (`5xwgkz20`).
+- `a.wait`: optional. Seconds the agent is asked to hold the exchange open before replying (R16).
 
 Each overture:
 
@@ -37,5 +38,33 @@ Attachments: the requester's signatures; optionally its KEL (R23); the overture 
     { "d": "E...", "overtureId": "rr-2", "action": "<issue license>", "params": { },
       "prereqs": ["rr-1"], "purpose": "Replace my lost license." }
   ]
+}
+```
+
+## Receipt
+
+Signed by the agent to mark admission, or by either party to say it has seen a message (R13, R17).
+
+- `i`: the signer's AID.
+- `ri`: the AID of the party the receipt is sent to.
+- `dt`: the signer's time. On an `admitted` receipt it is the time of admission.
+- `a.receipts`: a list of one or more receipts (`9z0lpky7`).
+- `a.nextPoll`: optional, and only in a receipt the agent signs. The earliest time the agent expects any still-pending overture this message references by `overtureId` to change (`0jjt97xh`). Omitted when nothing referenced is pending.
+
+Each receipt:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `meaning` | yes | `admitted` (the agent admitted the overture) or `seen` (the signer received the item, without commitment). |
+| `overtureId` | for an overture | The receipted overture's id. |
+| `said` | yes | For an overture, its own SAID (`d`), the digest of the admitted content. For a message, its exn SAID. |
+
+```json
+"a": {
+  "receipts": [
+    { "meaning": "admitted", "overtureId": "rr-1", "said": "E..." },
+    { "meaning": "admitted", "overtureId": "rr-2", "said": "E..." }
+  ],
+  "nextPoll": "2026-10-15T18:00:00.000000+00:00"
 }
 ```
