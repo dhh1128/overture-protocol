@@ -42,7 +42,7 @@ Out of scope:
 
 *R7 approved; see requirements.md.*
 
-**R8. Human-facing purpose.** Proposals that reach a person need a description of the purpose that the person can read. Because a stranger supplies it, the person approving MUST be able to see the exact signed proposal, never only a summary rendered from it. The purpose text is the requester's claim and a disclosure the requester answers for, not a gate. Structured action vocabularies (effect × state-kind, and later Syntelos) are preferred over free text where they suffice, and they make localization possible.
+*R8 approved; see requirements.md.*
 
 *R9 approved; see requirements.md.*
 
