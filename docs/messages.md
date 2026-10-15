@@ -20,11 +20,11 @@ Each overture:
 | Field | Required | Meaning |
 |---|---|---|
 | `d` | yes | The overture's own SAID, which identifies it within the requester's scope (R14, `7erf49uk`). It stays the same across resends. |
-| `u` | yes | A salty nonce the requester makes fresh for each overture, so two identical asks are two overtures (R14). |
+| `u` | yes | A salty nonce of about 128 bits of entropy, made fresh for each overture, so two identical asks are two overtures and the SAID blinds the content (R14). |
 | `action` | yes | The catalog identifier of the one action asked for (R9, R11). |
 | `params` | yes | The action's parameters, per its catalog entry (R11). |
 | `prereqs` | no | SAIDs of overtures that must succeed first (R9). |
-| `preconditions` | no | A map of preconditions (R5): `startBy`, `finishBy`, `signer` (R6), `audience` with `aid` and `nonce` (R7). |
+| `preconditions` | no | A map of preconditions (R5): `startBy`, `finishBy`, `signer` (R6), `audience` with `aid` and `nonce`, the relying party's challenge carried unchanged (R7). |
 | `purpose` | no | Text for a person, saying why the requester asks (R8). |
 | `triggeredBy` | no | The SAID of the overture that caused this one, attached whole as a nested substream (R10, `4uvlnnx4`). |
 | `evidence` | no | SAIDs of the authority evidence the overture relies on (R1, R10). |
@@ -91,4 +91,34 @@ Signed by the requester to withdraw overtures it sent (R15). Answered by a statu
 
 ```json
 "a": { "saids": ["EXyz..."] }
+```
+
+## Status report
+
+Signed by the agent. It answers a poll, an abort, or an overture sent with `waitUntil`, and is what the agent sends when it delivers on its own initiative (R16, `30urjn80`).
+
+- `i`: the agent's AID.
+- `ri`: the requester's AID.
+- `dt`: the agent's time.
+- `a.statuses`: one item per overture the message references (`8ryggr28`).
+- `a.nextPoll`: optional. As in the receipt, it covers only the items still `pending`.
+
+Each status:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `said` | yes | The overture's SAID (R14). |
+| `status` | yes | `pending`, `unknown`, or one of the outcomes `completed`, `declined`, `expired`, `failed`, `aborted`, `precluded` (R15). |
+| `results` | no | Only on an outcome. Each result is `{said}` for an artifact, optionally with `registry` for a credential checked by reference, or `{aid, oobi}` for a new identifier (R18). On `aborted`, anything already done. |
+| `reason` | no | Free text, given only when the principal chooses (R15). |
+
+```json
+"a": {
+  "statuses": [
+    { "said": "EAbc...", "status": "completed", "results": [ { "said": "E...revocation event" } ] },
+    { "said": "EXyz...", "status": "pending" },
+    { "said": "EQrs...", "status": "unknown" }
+  ],
+  "nextPoll": "2026-10-15T18:00:00.000000+00:00"
+}
 ```
