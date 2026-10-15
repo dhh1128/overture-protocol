@@ -123,6 +123,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 4662pten
       why: >-
         Every result is a verifiable artifact or a reference that resolves to one, and verifying it needs nothing specific to Overture. That a result is a result of the overture is stated by the outcome report (7m92u5mp), which commits to each result it carries (8erq0hp5); a result that can sign may state the same about itself, and a catalog entry may require that. That a result such as a new AID represents the principal is shown by the same representation evidence the signer precondition accepts (5yen7mup): KERI delegation or a GCD chain. We rejected a separate requirement that "where the link is the result, the link is signed", and the bound receipt it used, because those two mechanisms already sign both links. Which proof the relationship-AID action requires by default is a question for that action's catalog entry. Tradeoff accepted: a requester that discards the outcome report keeps the results but loses the signed claim tying them to the overture.
+    An overture's exn carries the principal's AID in ri = decision:
+      nid: 6f7mlrg6
+      why: >-
+        The v2 exn that carries overtures puts the principal's AID in ri, so the envelope itself references the principal (R3) and says what R1 says: the overture is addressed to the principal and delivered to an endpoint the principal authorized (0svwkvee). An agent compares ri with its principal's AID and refuses before admission an overture addressed to any other. keripy's Exchanger dispatches on the route and never reads ri; only route handlers do, and Overture's are its own (630f824j). KERIA addresses the AIDs it hosts the same way. We rejected the agent's AID in ri with a principal field in the a block, because it makes two references do one job and ties the overture to one agent, which R3 deliberately does not. Tradeoff accepted: this differs from IPEX, whose handlers expect ri to be the local hab, and a future keripy rule dropping any exn whose ri is not a local hab would break a stand-alone agent (not a KERIA-style host).
 facet = term:
   id: 7v6n52dz
   definition: >-
