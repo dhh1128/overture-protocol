@@ -19,11 +19,11 @@ Each overture:
 
 | Field | Required | Meaning |
 |---|---|---|
-| `d` | yes | The overture's own SAID. It stays the same across resends of the same content. |
-| `overtureId` | yes | Chosen by the requester, scoped to its AID (R14). |
+| `d` | yes | The overture's own SAID, which identifies it within the requester's scope (R14, `7erf49uk`). It stays the same across resends. |
+| `u` | yes | A salty nonce the requester makes fresh for each overture, so two identical asks are two overtures (R14). |
 | `action` | yes | The catalog identifier of the one action asked for (R9, R11). |
 | `params` | yes | The action's parameters, per its catalog entry (R11). |
-| `prereqs` | no | Overture ids that must succeed first (R9). |
+| `prereqs` | no | SAIDs of overtures that must succeed first (R9). |
 | `preconditions` | no | A map of preconditions (R5): `startBy`, `finishBy`, `signer` (R6), `audience` with `aid` and `nonce` (R7). |
 | `purpose` | no | Text for a person, saying why the requester asks (R8). |
 | `triggeredBy` | no | The SAID of the overture that caused this one, attached whole as a nested substream (R10, `4uvlnnx4`). |
@@ -34,9 +34,9 @@ Attachments: the requester's signatures; optionally its KEL (R23); the overture 
 ```json
 "a": {
   "overtures": [
-    { "d": "E...", "overtureId": "rr-1", "action": "<revoke license>", "params": { } },
-    { "d": "E...", "overtureId": "rr-2", "action": "<issue license>", "params": { },
-      "prereqs": ["rr-1"], "purpose": "Replace my lost license." }
+    { "d": "EAbc...", "u": "0AB3...", "action": "<revoke license>", "params": { } },
+    { "d": "EXyz...", "u": "0AQ9...", "action": "<issue license>", "params": { },
+      "prereqs": ["EAbc..."], "purpose": "Replace my lost license." }
   ]
 }
 ```
@@ -49,21 +49,20 @@ Signed by the agent to mark admission, or by either party to say it has seen a m
 - `ri`: the AID of the party the receipt is sent to.
 - `dt`: the signer's time. On an `admitted` receipt it is the time of admission.
 - `a.receipts`: a list of one or more receipts (`9z0lpky7`).
-- `a.nextPoll`: optional, and only in a receipt the agent signs. The earliest time the agent expects any still-pending overture this message references by `overtureId` to change (`0jjt97xh`). Omitted when nothing referenced is pending.
+- `a.nextPoll`: optional, and only in a receipt the agent signs. The earliest time the agent expects any still-pending overture this message references to change (`0jjt97xh`). Omitted when nothing referenced is pending.
 
 Each receipt:
 
 | Field | Required | Meaning |
 |---|---|---|
 | `meaning` | yes | `admitted` (the agent admitted the overture) or `seen` (the signer received the item, without commitment). |
-| `overtureId` | for an overture | The receipted overture's id. |
-| `said` | yes | For an overture, its own SAID (`d`), the digest of the admitted content. For a message, its exn SAID. |
+| `said` | yes | For `admitted`, the overture's own SAID (`d`), which is also the digest of the admitted content. For `seen`, the exn SAID of the message seen. |
 
 ```json
 "a": {
   "receipts": [
-    { "meaning": "admitted", "overtureId": "rr-1", "said": "E..." },
-    { "meaning": "admitted", "overtureId": "rr-2", "said": "E..." }
+    { "meaning": "admitted", "said": "EAbc..." },
+    { "meaning": "admitted", "said": "EXyz..." }
   ],
   "nextPoll": "2026-10-15T18:00:00.000000+00:00"
 }
@@ -75,11 +74,11 @@ Signed by the requester to ask for the state or outcome of overtures it sent (R1
 
 - `i`: the requester's AID.
 - `ri`: the principal's AID (`6f7mlrg6`).
-- `a.overtureIds`: the overture ids asked about, in the requester's scope (R14).
+- `a.saids`: the SAIDs of the overtures asked about, in the requester's scope (R14).
 - `a.waitUntil`: optional. The time until which the agent is asked to hold the exchange open (R16, `5zj9qmg0`).
 
 ```json
-"a": { "overtureIds": ["rr-1", "rr-2"], "waitUntil": "2026-10-15T17:05:00.000000+00:00" }
+"a": { "saids": ["EAbc...", "EXyz..."], "waitUntil": "2026-10-15T17:05:00.000000+00:00" }
 ```
 
 ## Abort
@@ -88,8 +87,8 @@ Signed by the requester to withdraw overtures it sent (R15). Answered by a statu
 
 - `i`: the requester's AID.
 - `ri`: the principal's AID.
-- `a.overtureIds`: the overture ids to withdraw.
+- `a.saids`: the SAIDs of the overtures to withdraw.
 
 ```json
-"a": { "overtureIds": ["rr-2"] }
+"a": { "saids": ["EXyz..."] }
 ```
