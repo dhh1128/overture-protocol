@@ -29,7 +29,7 @@ Each overture:
 | `preconditions` | no | A map of preconditions (R5): `startBy`, `finishBy`, `signer` (R6), `audience` with `aid` and `nonce`, the relying party's challenge carried unchanged (R7). |
 | `purpose` | no | Text for a person, saying why the requester asks (R8). |
 | `triggeredBy` | no | An object referencing the overture that caused this one: `said`, that overture's SAID, and `exn`, the exn SAID of the message that carried it. That message is attached whole as a nested substream (R10, `4uvlnnx4`). The agent refuses this overture unless the attached message has exactly that exn SAID and contains an overture with exactly that SAID. `exn` commits to the whole attached message; `said` selects which of its overtures is meant (`5xwgkz20`). |
-| `evidence` | no | SAIDs of the authority evidence the overture relies on (R1, R10). |
+| `evidence` | no | SAIDs of the authority evidence the overture relies on: for each GCD chain, its leaf credential's SAID (R1, R10, `8erq0hp5`). The other links and their TEL status are attached uncommitted. |
 
 Attachments: the requester's signatures; optionally its KEL (R23); the message referenced by each `triggeredBy`; and the authority evidence named by each `evidence`.
 
