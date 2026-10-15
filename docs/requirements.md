@@ -105,6 +105,10 @@ Every Overture message MUST state what its signature means, through its signed r
 
 **R24. Anchored signatures are not required.** An agent verifies an overture when it receives it, against the requester's key state at that time. A requester need not anchor an overture's signature in its KEL. If the requester rotates its key after admission, the overture stays admitted.
 
+**R25. Every received message is checked for currency and freshness.** An Overture engine MUST verify each message it receives against the signer's latest establishment event. It MUST refuse a message whose `dt` falls outside its freshness window by its own clock, or that replays a message it has already accepted. These are Overture's own requirements, and whatever performs the checks, an engine MUST NOT run without them.
+
+*Advice to implementers:* keripy performs both checks only in KRAM, and `Kevery` leaves KRAM off unless `enableKram` is set. Without KRAM, keripy's Exchanger verifies a signature against whichever establishment event the signature cites, even an old one, and never checks freshness. An implementation that relies on KRAM should refuse to start when KRAM is off, unless the operator passes an explicit override, and should warn every time it starts with that override.
+
 ## Test cases
 
 - **Double-consent introduction** (after Aries RFC 0028). R asks agent A for P: "introduce me to T". A sends T's agent its own overture, attaching R's original unaltered (R10). This tests passing an overture on, an outer finish-by bounding the inner one, what T may learn about R before consenting, how the status reports R receives protect T's privacy, and a result that means "invitation delivered" rather than "relationship formed".
