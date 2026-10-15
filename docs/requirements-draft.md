@@ -36,11 +36,7 @@ Out of scope:
 
 *R4 approved; see requirements.md.*
 
-**R5. Interest conditions.** A proposal MAY carry conditions that express utility, not commitment: "I propose that you do X, but I'm not interested unless Y." Version 1 defines *start-by* and *finish-by*; other bounds may be added later.
-- A proposal not accepted by its start-by time ends `declined`.
-- An agent that can see at decision time that finish-by cannot be met SHOULD decline rather than start.
-- Completing after finish-by is best effort. The requester judges whether the result is still useful.
-- Nothing in the protocol depends on proving when something finished.
+*R5 approved; see requirements.md.*
 
 **R6. Signer requirement.** A proposal MAY say which signer it will accept on a binding result:
 - `principal`: the principal's AID, or a KERI delegate of it created with the Delegate-Is-Delegator (`DID`) trait. This can be checked from KELs alone.
