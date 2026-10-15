@@ -23,8 +23,8 @@ Each overture:
 |---|---|---|
 | `d` | yes | The overture's own SAID, which identifies it within the requester's scope (R14, `7erf49uk`). It is computed by CESR's SAID protocol over the overture serialized as JSON, whatever kind the exn uses (`48tfl3xj`). It stays the same across resends. |
 | `u` | yes | A salty nonce of about 128 bits of entropy, made fresh for each overture, so two identical asks are two overtures and the SAID blinds the content (R14). |
-| `action` | yes | The catalog identifier of the one action asked for (R9, R11). |
-| `params` | yes | The action's parameters, per its catalog entry (R11). |
+| `action` | yes | The SAID (`$id`) of the catalog entry for the one action asked for (R9, R11, `0nztkj2q`). |
+| `params` | yes | The action's parameters, which MUST validate against the catalog entry referenced by `action` (R11). |
 | `prereqs` | no | SAIDs of overtures that must succeed first (R9). |
 | `preconditions` | no | A map of preconditions (R5): `startBy`, `finishBy`, `signer` (R6), `audience` with `aid` and `nonce`, the relying party's challenge carried unchanged (R7). |
 | `purpose` | no | Text for a person, saying why the requester asks (R8). |
