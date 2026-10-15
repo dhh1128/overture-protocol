@@ -31,7 +31,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only w
 - `completed`, with any evidence.
 - `declined`.
 - `expired`: its start-by time passed before it was acted on.
-- `failed`: it was agreed to, but did not succeed. Lateness alone is not failure.
+- `failed`: it was agreed to, but did not succeed. An unmet precondition alone is not failure (R5).
 - `aborted`: the requester's abort was honored, and the report says anything already done.
 - `precluded`: a prerequisite did not succeed, so it was never acted on.
 
