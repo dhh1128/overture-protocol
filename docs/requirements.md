@@ -76,7 +76,7 @@ The agent's first signed report of an outcome fixes it. An abort is answered wit
 **R16. Polling.**
 - Only the requester AID that sent an overture can see its state or outcome. To anyone else it reads as "unknown".
 - A poll MAY reference several overtures. The response gives one state or outcome per overture and is signed once.
-- "Unknown" is always a valid answer, even for an overture that was receipted. A requester that gets it may send the overture again.
+- "Unknown" is always a valid answer, even for an overture that was receipted. A requester MAY send an overture again until it holds an admitted receipt for it, and MUST NOT send it again after that. A requester that gets "unknown" for an admitted overture and still wants the act sends a new overture, with a new nonce, knowing the first may already have been carried out.
 - An overture or a poll MAY carry a `waitUntil` hint, asking the agent to hold the exchange open until a given time. The agent returns the outcome inline if it has one, or else returns when any listed overture's state changes or the time is reached. If the time has already passed when the message arrives, the agent answers at once. The agent may always decline to hold the exchange open.
 - Receipts and status reports MAY carry a suggested time for the next poll.
 - Delivery initiated by the agent is an optional feature of each binding, used only when the requester advertises an endpoint.
