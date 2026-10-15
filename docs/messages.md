@@ -1,10 +1,12 @@
 # Overture Protocol: messages
 
-*Approved message layouts. Each one is added here when Daniel Hardman approves it. Requirements are in [`requirements.md`](requirements.md), and the reasons for each choice are in [`this.i`](../this.i) decision nodes. Route names are not chosen yet.*
+*Approved message layouts. Each one is added here when Daniel Hardman approves it. Requirements are in [`requirements.md`](requirements.md), and the reasons for each choice are in [`this.i`](../this.i) decision nodes.*
 
-Every Overture message is a KERI v2 `exn` (`7cw0yhrk`). Envelope fields keep keripy's names: `v t d i ri x p dt r q a`. Fields inside `a` are Overture's own and have expressive camelCase names.
+Every Overture message is a KERI v2 `exn` (`7cw0yhrk`). Envelope fields keep keripy's names: `v t d i ri x p dt r q a`. Fields inside `a` are Overture's own and have expressive camelCase names. Routes are listed with each message (`970lu92k`).
 
-## Overture
+## Batch
+
+Route: `/overture/batch`.
 
 Sent by a requester to carry one or more overtures (a batch) to the principal.
 
@@ -43,6 +45,8 @@ Attachments: the requester's signatures; optionally its KEL (R23); the overture 
 
 ## Receipt
 
+Route: `/overture/receipt`.
+
 Signed by the agent to mark admission, or by either party to say it has seen a message (R13, R17).
 
 - `i`: the signer's AID.
@@ -70,6 +74,8 @@ Each receipt:
 
 ## Poll
 
+Route: `/overture/poll`.
+
 Signed by the requester to ask for the state or outcome of overtures it sent (R16). Answered by a status report.
 
 - `i`: the requester's AID.
@@ -83,6 +89,8 @@ Signed by the requester to ask for the state or outcome of overtures it sent (R1
 
 ## Abort
 
+Route: `/overture/abort`.
+
 Signed by the requester to withdraw overtures it sent (R15). Answered by a status report giving whatever holds for each overture when the abort arrives.
 
 - `i`: the requester's AID.
@@ -94,6 +102,8 @@ Signed by the requester to withdraw overtures it sent (R15). Answered by a statu
 ```
 
 ## Status report
+
+Route: `/overture/status`.
 
 Signed by the agent. It answers a poll, an abort, or an overture sent with `waitUntil`, and is what the agent sends when it delivers on its own initiative (R16, `30urjn80`).
 
