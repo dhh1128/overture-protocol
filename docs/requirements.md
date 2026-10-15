@@ -15,7 +15,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only w
 **R5. The requester may set preconditions.** An overture MAY carry preconditions. Preconditions are the requester's statement, in advance, that the overture should not be started unless it can be carried out in a way that meets them. They are advisory. Version 1 defines start-by and finish-by, and more are expected, such as a cost ceiling or a bar on public disclosure. An agent MUST NOT admit an overture that carries a precondition the agent does not understand.
 - An agent SHOULD decline an overture rather than start it when it can see that a precondition will not be met.
 - An overture that is not acted on by its start-by time ends `expired` (R15).
-- A precondition that could not be fully known before starting, such as finish-by, may turn out not to be met. That alone is not failure (R15). The requester judges whether the result is still useful.
+- A precondition that was predicted to be meetable, but that ends unmet, can only be judged a failure by the requester. (R15)
 
 **R9. One action per overture; dependencies by link.** An overture names exactly one action. It MAY name prerequisites by overture id, and these links form a dependency graph. A prerequisite MUST already be known to the agent or be carried in the same batch, and cycles MUST be refused. If any part of a batch is malformed (a dependency cycle, an unknown prerequisite, the same overture id twice, or an overture that fails verification), the agent MUST refuse the whole batch and admit none of it. A well-formed batch is judged overture by overture. If a prerequisite does not succeed, the overture that depends on it ends without being acted on, and overtures not linked to it are unaffected. Nothing is rolled back.
 
@@ -31,7 +31,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only w
 - `completed`, with any evidence.
 - `declined`.
 - `expired`: its start-by time passed before it was acted on.
-- `failed`: it was agreed to, but did not succeed. An unmet precondition alone is not failure (R5).
+- `failed`: it was agreed to, but did not succeed. A precondition that was predicted to be meetable, but that ends unmet, can only be judged a failure by the requester. (R5)
 - `aborted`: the requester's abort was honored, and the report says anything already done.
 - `precluded`: a prerequisite did not succeed, so it was never acted on.
 
