@@ -13,7 +13,7 @@ Sent by a requester to carry one or more overtures (a batch) to the principal.
 - `dt`: the send time, by which replay protection judges each send (R2).
 - `x`, `p`, `q`: empty.
 - `a.overtures`: a list of one or more overtures (`5xwgkz20`).
-- `a.wait`: optional. Seconds the agent is asked to hold the exchange open before replying (R16).
+- `a.waitUntil`: optional. The time until which the agent is asked to hold the exchange open (R16).
 
 Each overture:
 
@@ -67,4 +67,29 @@ Each receipt:
   ],
   "nextPoll": "2026-10-15T18:00:00.000000+00:00"
 }
+```
+
+## Poll
+
+Signed by the requester to ask for the state or outcome of overtures it sent (R16). Answered by a status report.
+
+- `i`: the requester's AID.
+- `ri`: the principal's AID (`6f7mlrg6`).
+- `a.overtureIds`: the overture ids asked about, in the requester's scope (R14).
+- `a.waitUntil`: optional. The time until which the agent is asked to hold the exchange open (R16, `5zj9qmg0`).
+
+```json
+"a": { "overtureIds": ["rr-1", "rr-2"], "waitUntil": "2026-10-15T17:05:00.000000+00:00" }
+```
+
+## Abort
+
+Signed by the requester to withdraw overtures it sent (R15). Answered by a status report giving whatever holds for each overture when the abort arrives.
+
+- `i`: the requester's AID.
+- `ri`: the principal's AID.
+- `a.overtureIds`: the overture ids to withdraw.
+
+```json
+"a": { "overtureIds": ["rr-2"] }
 ```

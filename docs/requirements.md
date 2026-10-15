@@ -73,11 +73,13 @@ The agent's first signed report of an outcome fixes it. An abort is answered wit
 - Only the requester AID that sent an overture can see its state or outcome. To anyone else it reads as "unknown".
 - A poll MAY name several overture ids. The response gives one state or outcome per id and is signed once.
 - "Unknown" is always a valid answer, even for an overture that was receipted. A requester that gets it may send the overture again under the same overture id.
-- An overture or a poll MAY carry a `wait` hint, asking the agent to hold the exchange open for up to N seconds. The agent returns the outcome inline if it has one, or else returns when any listed overture's state changes or the time runs out. The agent may always decline to hold the exchange open.
+- An overture or a poll MAY carry a `waitUntil` hint, asking the agent to hold the exchange open until a given time. The agent returns the outcome inline if it has one, or else returns when any listed overture's state changes or the time is reached. If the time has already passed when the message arrives, the agent answers at once. The agent may always decline to hold the exchange open.
 - Receipts and status reports MAY carry a suggested time for the next poll.
 - Delivery initiated by the agent is an optional feature of each binding, used only when the requester advertises an endpoint.
 
 *Advice to implementers:* a principal who does not want response timing to reveal how it decides can add random delays.
+
+*Advice to implementers:* the gap between a message's `dt` and the time it arrives bounds the sender's clock skew plus transit time, so an agent can use it to judge how the sender's `waitUntil` maps onto its own clock.
 
 **R17. Every signature's meaning is explicit; receipts have one form.** A receipt states the signer's AID, what is receipted, the signer's `dt`, and a meaning from a closed set. An overture is receipted by its overture id together with the digest of its admitted content; a message is receipted by its SAID. The meanings are:
 - `admitted`: an agent has admitted the overture as a work item and acknowledges notice of its content (R13).
