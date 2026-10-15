@@ -1,8 +1,24 @@
 # Overture Protocol: requirements
 
-*Approved requirements only. Each one is moved here from [`requirements-draft.md`](requirements-draft.md) when Daniel Hardman approves it, in the reviewed wording. Terms are defined in [`this.i`](../this.i) term nodes (render them with `i glossary`), and the reasons for design choices are in its decision nodes; this file states only what the protocol must do.*
+*Approved by Daniel Hardman, requirement by requirement. Terms are defined in [`this.i`](../this.i) term nodes (render them with `i glossary`), and the reasons for design choices are in its decision nodes; this file states only what the protocol must do.*
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only where a statement is a requirement on the protocol. Advice to implementers is labelled as advice.
+
+## Scope
+
+Overture is a public counter. A requester may ask for any action in the action catalog, and new actions can be added to the catalog without changing the protocol (R11). The agent handles what it is empowered to handle and turns away the rest.
+
+In scope:
+- Overtures asking for actions such as issuing or revoking a credential, resolving an OOBI, being challenged to prove something, being introduced to a third party, creating a relationship AID, or starting another protocol with the requester.
+- Receipts, status and outcomes for those overtures.
+
+Out of scope:
+- **Administering the agent.** Nothing in Overture configures or commands the agent itself: no changes to policy, preferences or grants. An overture signed by the principal has no special standing in the protocol.
+- **Routing around the agent.** A principal who wants another channel adds one.
+- **Anything behind the counter,** including how the decision is made and how the principal is reached.
+- **How launched actions run.** IPEX, challenge-response, introduction and the like keep their own definitions. Overture launches and tracks them, but does not redefine them.
+
+## Requirements
 
 **R1. An overture is a request for the principal to take one action.** It MUST be signed by the requester's AID, and MUST remain verifiable with any transport stripped away. Its body MUST commit by SAID to each attached overture, and to each item of authority evidence it relies on. An attachment the body does not name carries no claim by the requester.
 
