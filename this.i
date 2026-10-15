@@ -143,6 +143,10 @@ Let an untrusted party propose actions to a principal's agent = goal:
       nid: 8ryggr28
       why: >-
         The status report (30urjn80) is signed by the agent, with i the agent's AID and ri the requester's. Its a block holds statuses, one item per overture it references, each with said (the overture's SAID, 7erf49uk) and status (pending, unknown, or one of the six outcomes, 36j5xvln). An item that gives an outcome may carry results, each either {said} for an artifact, the body thereby committing to it when attached (8erq0hp5), optionally with registry for a credential checked by reference, or {aid, oobi} for a new identifier (R18); an aborted item's results list anything already done. reason is optional free text, given only when the principal chooses (R15). nextPoll follows 9z0lpky7 and covers only the items still pending. We rejected also carrying a requester-scoped id beside said, because SAID identity leaves one reference doing one job. Tradeoff accepted: every item carries a 44-character SAID.
+    Routes use the established term for each message = decision:
+      nid: 970lu92k
+      why: >-
+        The five routes are /overture/batch (the requester asks for what its overtures say), /overture/receipt (the signer receipts, with each item's meaning), /overture/poll (the requester asks about overtures), /overture/abort (the requester withdraws overtures) and /overture/status (the agent reports states and outcomes). Each route states what the message's signature means (7m92u5mp), under the /overture/ prefix (7cw0yhrk), and each uses a term already defined rather than a new one. The message that carries overtures is a batch by definition (54m97zvg), even when it carries one. We rejected /overture/overture, because it says nothing about what the message holds. Tradeoff accepted: a reader who assumes a batch holds several overtures misreads the common case of one, which the batch term's "one or more" answers.
 facet = term:
   id: 7v6n52dz
   definition: >-
