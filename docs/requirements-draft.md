@@ -90,18 +90,11 @@ Out of scope:
 
 ## 9. Test cases
 
-- **Double-consent introduction** (after Aries RFC 0028). R asks agent A for P: "introduce me to T". A sends T's agent a second, chained Overture proposal, attaching R's original. This tests chaining, an outer deadline bounding the inner one, what T may learn about R before consenting, how R's disposition protects T's privacy, and a disposition that means "invitation delivered" rather than "relationship formed".
-- **"Start protocol P with me"**, using coin flip (Aries RFC 0193) as the example.
-- **"Challenge me"** opening an IPEX `apply` from the agent, with `p` linking back to the proposal.
-- **Revoke and reissue** a license after loss: dependency links and receipt-as-notice.
-- **A relationship AID**: OOBI-as-result plus a `bound` receipt.
+*Approved; see requirements.md.*
 
 ## 10. Deliverables
 
-- The protocol specification.
-- JSON Schemas for every message.
-- Test vectors.
-- A reference stand-in agent that clients can build against before real agents exist.
+*Approved; see requirements.md.*
 
 ## Open questions
 

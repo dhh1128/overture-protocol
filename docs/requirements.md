@@ -84,3 +84,20 @@ Every Overture message MUST state what its signature means, through its signed r
 **R23. Requester identity.** A requester is identified by its AID, which may be transferable or non-transferable. If a requester's key changes under a non-transferable AID, it becomes a new requester, and its earlier overtures stay scoped to the old AID. Before it verifies a requester's signature, an agent needs that AID's key state. The agent may already have it. If not, the requester attaches its KEL or gives an OOBI. An agent MAY decline to resolve an OOBI from a requester whose overture it has not admitted.
 
 **R24. Anchored signatures are not required.** An agent verifies an overture when it receives it, against the requester's key state at that time. A requester need not anchor an overture's signature in its KEL. If the requester rotates its key after admission, the overture stays admitted.
+
+## Test cases
+
+- **Double-consent introduction** (after Aries RFC 0028). R asks agent A for P: "introduce me to T". A sends T's agent its own overture, attaching R's original unaltered (R10). This tests passing an overture on, an outer finish-by bounding the inner one, what T may learn about R before consenting, how the outcome report R receives protects T's privacy, and a result that means "invitation delivered" rather than "relationship formed".
+- **"Start a protocol with me"**, using coin flip (Aries RFC 0193) as the example.
+- **"Challenge me"**: the agent opens an IPEX `apply`, with `p` linking back to the overture.
+- **Revoke and reissue** a license after loss: a prerequisite link (R9) and the `admitted` receipt as notice (R13, R17).
+- **A relationship AID**: an OOBI as the result, with the new AID stating that it is a result of the overture (R17).
+- **Preconditions**: an overture that finishes after its finish-by, which the requester judges; an overture carrying a precondition the agent does not understand, refused before admission (R5); and one where the `representative` default rules out a third-party signer (R6).
+
+## Deliverables
+
+- The protocol specification.
+- JSON Schemas for every message.
+- Test vectors.
+- A reference stand-in agent that clients can build against before real agents exist.
+- The action catalog's initial entries (R11), enough to run the test cases.
