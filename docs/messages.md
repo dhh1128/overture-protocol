@@ -2,7 +2,7 @@
 
 *Approved message layouts. Each one is added here when Daniel Hardman approves it. Requirements are in [`requirements.md`](requirements.md), and the reasons for each choice are in [`this.i`](../this.i) decision nodes.*
 
-Every Overture message is a KERI v2 `exn` (`7cw0yhrk`). Envelope fields keep keripy's names: `v t d i ri x p dt r q a`. Fields inside `a` are Overture's own and have expressive camelCase names. Routes are listed with each message (`970lu92k`).
+Every Overture message is a KERI v2 `exn` (`7cw0yhrk`). Envelope fields keep keripy's names: `v t d i ri x p dt r q a`. Fields inside `a` are Overture's own and have expressive camelCase names. Routes are listed with each message (`970lu92k`). Every message's `a` block also carries `version`, required, written major.minor and starting at `"1.0"`; an agent refuses a major version it does not support, and a minor version only adds optional fields (`3vpll4pd`). The examples below omit it.
 
 ## Batch
 
