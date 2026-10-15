@@ -34,7 +34,7 @@ Out of scope:
 
 *R3 approved; see requirements.md.*
 
-**R4. Proposals are requests, never offers.** No action by the principal or agent can turn a proposal into a commitment by the requester. Any outcome that would bind the requester requires a separate signature by the requester, made after it has seen the outcome, either through the launched action's own countersignature step or an acknowledgement (R17).
+*R4 approved; see requirements.md.*
 
 **R5. Interest conditions.** A proposal MAY carry conditions that express utility, not commitment: "I propose that you do X, but I'm not interested unless Y." Version 1 defines *start-by* and *finish-by*; other bounds may be added later.
 - A proposal not accepted by its start-by time ends `declined`.

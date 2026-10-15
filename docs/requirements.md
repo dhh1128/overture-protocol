@@ -10,6 +10,8 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119, but only w
 
 **R3. An overture references its principal.** An overture MUST reference, by AID, the principal it addresses, so that it cannot be replayed to a different principal.
 
+**R4. Overtures are never offers.** Nothing the principal or an agent does can turn an overture into a commitment by the requester. Overture defines no message by which a requester commits. If an outcome would bind the requester, it does so only after the requester signs it separately, having seen it, through the launched action's own countersignature step.
+
 **R9. One action per overture; dependencies by link.** An overture names exactly one action. It MAY name prerequisites by overture id, and these links form a dependency graph. A prerequisite MUST already be known to the agent or be carried in the same batch, and cycles MUST be refused. If any part of a batch is malformed (a dependency cycle, an unknown prerequisite, the same overture id twice, or an overture that fails verification), the agent MUST refuse the whole batch and admit none of it. A well-formed batch is judged overture by overture. If a prerequisite does not succeed, the overture that depends on it ends without being acted on, and overtures not linked to it are unaffected. Nothing is rolled back.
 
 **R12. Refusal before admission is free.** An agent MAY refuse an overture or a batch it has not admitted without storing anything beyond aggregate counters and without signing anything, and that includes refusing by silence. The protocol MUST NOT oblige an agent to store or sign anything about an overture before admitting it. Implementations MAY store and sign more.
