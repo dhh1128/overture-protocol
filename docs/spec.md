@@ -340,3 +340,48 @@ Every result is either a verifiable artifact, such as an ACDC, a KEL or TEL even
 Nothing the principal or an agent does can turn an overture into a commitment by the requester. Overture defines no message by which a requester commits. If an outcome would bind the requester, it does so only after the requester signs it separately, having seen it, through the launched action's own countersignature step.
 
 Nothing in Overture reveals whether policy, a person or nested agents decided, though a principal may choose to say more. The principal's involvement shows only where a result must carry the principal's own signature. Declining never needs escalation. An act that lies outside the agent's signing authority must involve whoever holds that authority before it completes. Whoever signs a result MUST be able to prove a chain of representation back to the principal.
+
+## 7. Preconditions
+
+An overture MAY carry preconditions in its `preconditions` map. A precondition is the requester's statement, in advance, that the overture should not be started unless it can be carried out in a way that meets it (`83e2qr0z`). Preconditions are advisory: they are not obligations on the principal. An agent MUST NOT admit an overture that carries a precondition it does not understand, because advice can be set aside deliberately only by an agent that can read it. An agent SHOULD decline an overture rather than start it when it can see that a precondition will not be met. A precondition that was predicted to be meetable, but that ends unmet, can only be judged a failure by the requester.
+
+Version 1 defines four:
+
+- `startBy`: a time. An overture not acted on by then ends `expired`.
+- `finishBy`: a time by which the requester wants the action finished.
+- `signer`: who must sign a result for the requester to want it (`5yen7mup`). `principal` means the principal's AID, or a KERI delegate of it created with the Delegate-Is-Delegator (`DID`) trait, which can be checked from KELs alone. `representative` means the principal, or any signer that proves a chain of representation to the principal, through KERI delegation or a chain of GCD credentials linked through `issuer` edges. An overture without `signer` is treated as carrying `representative`. The requester checks who signed any result it receives.
+- `audience`: an object with `aid`, a downstream relying party's AID, and `nonce`, that party's challenge, carried unchanged as an opaque value (`35d29vn5`). It says the requester wants a result only if the result binds itself to that audience and nonce. The result does the binding; the overture carries only the inputs, and the requester checks the binding itself. The audience is not the party on whose behalf the requester acts, which the requester's authority evidence shows.
+
+Understanding `audience` means recognizing it. An agent that cannot produce a result bound to the audience and nonce SHOULD decline the overture, and until a catalog entry defines a result that carries the binding, every agent will (`4gqmgjxf`). Using `audience` tells the principal, everyone behind the counter and every hop which relying party the requester means to present the result to, and the binding may keep that relying party's AID in the result. A requester that does not want that known should not use it.
+
+A hop's own overture SHOULD NOT carry a `finishBy` later than the `finishBy` of the overture it passes on, so that the outer request bounds the inner one.
+
+*Advice to implementers:* a relying party should make its nonce unpredictable, because a guessable challenge lets someone produce a result in advance. Clock agreement is already assumed by the freshness checks of §4.4, and preconditions are judged by the agent's clock.
+
+## 8. The action catalog
+
+An overture identifies the one action it asks for by the SAID of a catalog entry (`0nztkj2q`). Anyone may define catalog entries, and new entries need no change to this protocol. An agent MUST refuse, before admission, an overture whose `action` references an entry it does not know.
+
+A catalog entry MUST be a JSON Schema, in the JSON Schema 2020-12 dialect, that validates an overture's `params`, SAIDified and verified by the schema rules of ACDC 1.0, so that its top-level `$id` is a bare SAID of the entry. It is not called an ACDC schema, because its instances are parameters, not ACDCs. Any change to an entry makes a new entry with a new SAID, so a signed overture commits to exactly which act it requests. In the entry:
+
+- `title` is a label for people, and `description` is the standard description of what the action does (§5.1 `purpose` is the requester's own words, not this).
+- The annotation keyword `overture` holds an object with three fields: `gcdSchema`, the SAID of the GCD schema whose act grid the entry uses; `acts`, the list of (effect, state-kind) points the action occupies on that grid, each written as GCD writes an entry of `acts`, such as `"create record"`; and `targets`, the list of JSON Pointers into `params` that designate the act's targets, GCD's third coordinate. With these, a policy engine can check an overture against a GCD credential without knowing Overture.
+- The entry MAY state, in its description, that a result able to sign must state itself to be a result of the overture (§6.11), and which step of a launched protocol its result is.
+
+An action whose result exists to keep the principal unlinkable, such as creating a relationship AID, SHOULD NOT use KERI delegation from the principal as the result's representation evidence, because a delegated AID names its delegator in its inception event for anyone to read. Its entry SHOULD specify evidence disclosed only to the requester, such as a GCD credential blinded with `u`, as the default (`7l9nr4dn`).
+
+This specification ships a set of initial entries, enough to run the test cases in Appendix A. They are published as separate files beside it.
+
+### 8.1 Relationship to IPEX
+
+An IPEX `apply` asks a connected party to disclose a credential. It carries no admission, receipt, status, preconditions, abort, or proof of the requester's authority. Overture provides those for a requester the issuer does not know, then launches IPEX: the agent answers an admitted issuance overture by starting an IPEX exchange at `offer` or `grant`, whose first message sets `p` to the exn SAID of the batch that carried the overture (`535qked4`). A requester already connected to an issuer may use IPEX `apply` directly. The issuance entry states which IPEX step its result is.
+
+## 9. Versioning
+
+Every Overture message's `a` block MUST carry `version`, a string of two decimal integers written `major.minor`, starting at `"1.0"` (`3vpll4pd`, `0n0cy9mx`). An agent MUST refuse a message whose major version it does not support.
+
+Within a major version, a minor version MAY add optional fields, which an older reader ignores, except inside `preconditions`, where an unknown key makes the agent refuse the overture (§7). A new precondition therefore needs only a minor version. A new status value, a new receipt meaning, or a changed meaning of any existing field needs a new major version. The JSON Schemas for each message allow additional properties everywhere except in closed sets: statuses, receipt meanings and `signer` values.
+
+An overture is bound to the major version of the batch that first carried it. A resend MUST use the same major version (§6.5). A message attached inside another is judged by its own version, and an agent that does not support that version refuses the message carrying it.
+
+Because refusal may be silent (§6.4), a binding MAY report an unsupported major version at the transport layer without signing anything, so that a requester can tell a version problem from a policy decision (§10).
