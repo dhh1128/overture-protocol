@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install libsodium (keripy's signing library)
+        run: sudo apt-get update && sudo apt-get install -y libsodium23
+      - uses: astral-sh/setup-uv@v10
+      - name: Install Python 3.14 and dependencies
+        run: uv sync --python 3.14 --locked
+      - name: Run tests at 100% branch coverage
+        run: uv run pytest

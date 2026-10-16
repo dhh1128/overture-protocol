@@ -4,3 +4,9 @@
 # See dev/standards/repo-layout.md, "Rendered doc artifacts".
 docs/**/*.pdf
 docs/**/*.html
+
+# Python
+.venv/
+__pycache__/
+.coverage
+.pytest_cache/
