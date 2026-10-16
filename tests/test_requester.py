@@ -69,3 +69,35 @@ def test_an_exn_outside_overture_is_skipped(r, parties):
                                route="/other", attributes={}, pvrsn=Vrsn_2_0, kind=Kinds.json)
     other = bytes(parties["agent"].endorse(serder=serder, nested=True, gvrsn=Vrsn_2_0))
     assert r.read(other + report(parties["agent"], parties["requester"].pre))[0].route == "/overture/status"
+
+
+def delegate(principal, raw, traits):
+    """A delegate of ``principal`` with inception ``traits``, as KELs: keripy's Hab cannot
+    make one with the DID trait, so its inception is built and signed here."""
+    from keri.core import eventing
+    from keri.core.coring import Diger, Number
+    from keri.core.signing import Salter
+    from keri.core.structing import SealSource
+    salter = Salter(raw=raw)
+    now, nxt = salter.signers(count=2, path="delegate", temp=True)
+    dip = eventing.delcept(keys=[now.verfer.qb64], delpre=principal.pre,
+                           ndigs=[Diger(ser=nxt.verfer.qb64b).qb64], cnfg=traits)
+    principal.interact(data=[dict(i=dip.pre, s="0", d=dip.said)])
+    anchor = principal.kever.serder
+    stream = bytes(eventing.messagize(dip, sigers=[now.sign(dip.raw, index=0)],
+                                      bonds=[SealSource(s=Number(num=anchor.sn),
+                                                        d=Diger(qb64=anchor.said))]))
+    return dip.pre, bytes(principal.replay()) + stream
+
+
+@pytest.mark.parametrize("traits,expected", [(["DID"], True), ([], False)])
+def test_a_delegate_signs_as_the_principal_only_with_the_did_trait(r, parties, traits, expected):
+    aid, kels = delegate(parties["principal"], b"delegate-salt-00", traits)
+    r.learn(kels)
+    assert r.signs_as_principal(aid) is expected
+
+
+def test_the_principal_signs_as_itself_and_others_do_not(r, parties):
+    assert r.signs_as_principal(parties["principal"].pre)
+    assert not r.signs_as_principal(parties["stranger"].pre)
+    assert not r.signs_as_principal(SAID)

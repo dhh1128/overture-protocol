@@ -5,6 +5,7 @@ it can verify receipts and status reports against the agent AID that signed them
 """
 
 from keri.core.eventing import Kevery
+from keri.kering import TraitDex
 
 from . import errors, messages, schemas, verify, wire
 from .errors import Refusal
@@ -19,6 +20,20 @@ class Requester:
     def learn(self, stream: bytes) -> None:
         """Process KELs and replies, such as the agent's KEL from its OOBI."""
         wire.parse(stream, kvy=self.kvy)
+
+    def signs_as_principal(self, aid: str) -> bool:
+        """True when ``aid`` is the principal, or a delegate of it incepted with KERI's
+        Delegate-Is-Delegator trait, by the KELs this requester holds (spec §7, signer).
+        keripy defines the trait but does not act on it, and its key state keeps only the EO
+        and DND traits, so this reads the delegate's inception event, whose SAID is the
+        delegate's AID."""
+        if aid == self.principal:
+            return True
+        kever = self.kvy.kevers.get(aid)
+        if kever is None or kever.delpre != self.principal:
+            return False
+        inception = self.kvy.db.evts.get(keys=(aid, aid))
+        return TraitDex.DelegateIsDelegator in inception.ked.get("c", [])
 
     def kel(self) -> bytes:
         """This requester's own KEL, to send before its first message."""
