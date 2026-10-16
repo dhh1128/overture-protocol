@@ -173,3 +173,10 @@ def test_an_existing_salt_is_tightened_to_owner_only(tmp_path):
     os.chmod(tmp_path / "salt", 0o644)
     assert cli.salt(tmp_path) == "0AAAAAAAAAAAAAAAAAAAAAAA"
     assert os.stat(tmp_path / "salt").st_mode & 0o777 == 0o600
+
+
+def test_the_script_declines_audience_since_no_entry_can_bind_it_yet():
+    policy = ScriptPolicy({})
+    o = {"d": "E", "preconditions": {"audience": {"aid": "D" + "A" * 43, "nonce": "n"}}}
+    assert policy.plan("E", o, {"$id": "Ex", "title": "Anything"}) is None
+    assert ScriptPolicy({"default": {"audience": True}}).plan("E", o, {"$id": "Ex", "title": "x"})

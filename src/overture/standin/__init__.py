@@ -22,7 +22,8 @@ class ScriptPolicy:
 
     A rule may say ``admit`` (default true), ``after`` (seconds pending, default 0),
     ``status`` (default "completed"), ``results``, ``reason``, and ``make: "aid"`` to create
-    a real AID whose inception seals the overture's SAID (this.i 564x4rgx).
+    a real AID whose inception seals the overture's SAID (this.i 564x4rgx). An overture with
+    an audience precondition is declined unless its rule says ``audience: true``.
     """
 
     def __init__(self, script: dict, make_aid=None):
@@ -37,6 +38,8 @@ class ScriptPolicy:
         rule = self.rule(entry)
         if not rule.get("admit", True):
             return None
+        if "audience" in overture.get("preconditions", {}) and not rule.get("audience"):
+            return None  # no entry yet defines a result bound to an audience (spec §7, 4gqmgjxf)
         results = list(rule.get("results", []))
         if rule.get("make") == "aid":
             results.insert(0, self.make_aid(overture["d"]))
