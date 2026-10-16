@@ -225,3 +225,118 @@ Each status:
   "nextPoll": "2026-10-15T18:00:00.000000+00:00"
 }
 ```
+
+## 6. Processing
+
+### 6.1 Checking a received message
+
+An agent checks a message in this order, and each step relies on the one before it:
+
+1. **Bound.** It refuses a message larger than it is willing to parse.
+2. **Parse.** It parses the CESR stream (§4.3), processing any KELs, TEL events and endpoint replies that precede the message by ordinary KERI rules.
+3. **Currency and freshness.** It applies §4.4 to the message.
+4. **Address.** It refuses a message whose `ri` is not its principal's AID (§4.1).
+5. **Version.** It refuses a message whose major version it does not support (§9).
+6. **Shape.** It validates the `a` block against the JSON Schema for the route and version.
+7. **SAIDs.** It verifies the SAID of every overture in the message, and of every overture in each attached message, by the verification protocol of CESR's section "Self-addressing identifier (SAID)" (§6.2).
+8. **Attached messages.** It verifies each attached message's signatures (§4.4) and each `triggeredBy` match (§6.8).
+9. **Batch integrity.** It checks the batch rules of §6.5.
+10. **Catalog.** For each overture, it refuses one whose `action` references a catalog entry it does not know, or whose `params` do not validate against that entry (§8).
+11. **Preconditions.** It refuses an overture carrying a precondition it does not understand (§7).
+
+A failure at steps 1 to 9 is a failure of the message. For a batch, a failure at steps 7 to 9 makes the batch malformed, and the agent MUST refuse the whole batch and admit none of it (`7f9ydc0f`): the requester built it wrongly, so nothing in it can be trusted to mean what was intended. A failure at steps 10 or 11 refuses that overture. After these checks, whether to admit an overture is the agent's decision, made behind the counter.
+
+### 6.2 Overture identity
+
+An overture is identified by its own SAID, the value of its `d` field, within the scope of the requester's AID (`7erf49uk`): an overture with the same SAID sent by a different requester is that requester's own. The SAID MUST be computed by the derivation protocol of CESR's section "Self-addressing identifier (SAID)", with the overture object as the self-addressed data, its fields in the order sent, serialized as JSON without whitespace, whatever serialization kind carries the batch (`48tfl3xj`). An agent MUST verify every overture's SAID that way (§6.1, step 7).
+
+The SAID covers everything in the overture but not the batch's `dt`, so every resend of the same overture carries the same SAID, and different content is a different overture. Two sends are the same overture when they come from the same requester and carry an overture with the same SAID. Because a prerequisite's SAID must exist before an overture that depends on it can be hashed, a dependency cycle cannot be built.
+
+Prerequisite links, polls, aborts, receipts, status reports and `triggeredBy` reference an overture by its SAID, and that SAID MUST remain usable on a transport other than the one that delivered the overture.
+
+### 6.3 States and outcomes
+
+An overture refused before admission has no state, and a later poll about it returns `unknown`. After admission, its only visible state is `pending`, from the receipt until its outcome, for as long as that takes (`36j5xvln`). An agent may track internally that the principal has agreed and the action is under way, but never shows it. An overture ends in exactly one outcome:
+
+- `completed`: the action was carried out. Results are listed.
+- `declined`: the principal, or the agent for it, chose not to act.
+- `expired`: its start-by time (§7) passed before it was acted on.
+- `failed`: it was agreed to but did not succeed.
+- `aborted`: the requester's abort was honored. Results list anything already done.
+- `precluded`: a prerequisite did not succeed, so it was never acted on (§6.5).
+
+The agent's first signed report of an outcome fixes it; the agent MUST NOT later report a different status for that overture except `unknown` after its `keptUntil` time. Reasons are omitted by default, because they let a stranger probe the principal's policy, but a principal may choose to give them in `reason`.
+
+A precondition that was predicted to be meetable, but that ends unmet, can only be judged a failure by the requester (§7).
+
+### 6.4 Admission and refusal
+
+An agent MAY refuse an overture or a batch it has not admitted without storing anything beyond aggregate counters and without signing anything, and that includes refusing by silence. The protocol never obliges an agent to store or sign anything about an overture before admitting it; implementations may store and sign more.
+
+When an agent admits an overture, including one whose handling it defers (for example to quiet hours), it MUST return a receipt signed under its AID with meaning `admitted`, referencing the overture by its SAID, with the receipt's `dt` as the time of admission and with `keptUntil` (§6.6). One receipt message MAY carry `admitted` receipts for several overtures of a batch. If the batch carried `waitUntil` and an outcome is already known, the agent MAY answer with a status report instead, which implies admission of each overture it gives an outcome or `pending` for.
+
+A receipt means the agent has agreed to treat the overture as a work item that later polls and aborts can refer to. It does not promise that the principal will act, or that an outcome will arrive within any time. It is also the agent's signed acknowledgement that it has been given notice of the overture's content. Notice runs only from an `admitted` receipt. Like every Overture signature, it is ephemeral evidence (§4.2); a claim that must outlive a rotation, such as notice that shifts liability for a lost license, belongs in a result.
+
+*Advice to implementers:* before admitting a cold overture, an agent may require a stateless proof that the requester can receive replies, using a nonce of its own, such as a MAC over a time counter, the requester's AID and the overture's SAID. Whatever key state the agent resolves for the requester must be the key state that signed the overture.
+
+*Advice to implementers:* a principal who does not want response timing to reveal how it decides can add random delays.
+
+### 6.5 Batches and dependencies
+
+An overture asks for exactly one action. It MAY reference prerequisites by SAID in `prereqs`, and these links form a dependency graph. Each prerequisite MUST be an overture the agent has already admitted from the same requester, or an overture carried in the same batch. A batch is malformed (§6.1) if a prerequisite is neither, if it carries the same overture twice, or if it carries a resend of an admitted overture under a different major version (§9).
+
+A well-formed batch is judged overture by overture (`8zysn4nv`). An overture is acted on only after each of its prerequisites ends `completed`; if a prerequisite ends any other way, the overture that depends on it ends `precluded`, and overtures not linked to it are unaffected. Nothing is rolled back: an overture already acted on is not undone when a later one fails.
+
+### 6.6 Agent memory and resends
+
+An agent MUST remember each overture it has admitted (its SAID in the requester's scope, its time of admission and its status) for as long as it is `pending`, and MUST keep its outcome until the overture's `keptUntil` time (`8fwdvgmg`). Before that time the agent MUST NOT answer `unknown` about it. After it, `unknown` is allowed. Several agent AIDs answering at one endpoint MUST share this memory (`43lr8z7v`).
+
+A requester MAY send an overture again until it holds an `admitted` receipt for it, and MUST NOT send it again after that (`5c5fzw97`). An agent answers a resend of an overture it has already admitted with a receipt that repeats the original time of admission and `keptUntil`. A requester that gets `unknown` for an admitted overture and still wants the act sends a new overture, with a new `u`, knowing the first may already have been carried out.
+
+A requester MAY sign a `seen` receipt over the exn SAID of a status report that gives outcomes. After receiving it, the agent MAY forget those outcomes before their `keptUntil` time (`6fcnv3q0`).
+
+*Advice to implementers:* `keptUntil` should comfortably exceed how long a requester plausibly needs to poll. Lasting proof of what was done comes from the results, not from the agent's memory.
+
+### 6.7 Polling, waiting and aborts
+
+Only the requester AID that sent an overture can see its status. To anyone else, the overture reads as `unknown`. A poll or abort MAY reference several overtures, and the status report gives one status per overture and is signed once (`0u4svfnq`). An abort is answered with whatever status holds when it arrives; an agent honors an abort if it still can, and reports `aborted` with anything already done.
+
+A batch or a poll MAY carry `waitUntil`, asking the agent to hold the exchange open until that time by the agent's clock. The agent answers when it has an outcome for any referenced overture, when a referenced overture's status changes, or when the time is reached; if the time has passed when the message arrives, it answers at once. The agent MAY always decline to hold the exchange open, and MUST hold it only for a message that has passed §6.1's checks.
+
+Receipts and status reports MAY carry `nextPoll`, the earliest time the agent expects any still-pending overture the message references to change (`0jjt97xh`). It covers only those overtures, is omitted when none is pending, and appears only in messages an agent signs. The requester need not honor it. Because the agent computes it from what is behind the counter, it SHOULD NOT reveal behind-the-counter facts.
+
+*Advice to implementers:* an agent should give coarse or jittered `nextPoll` values. The gap between a message's `dt` and its arrival bounds the sender's clock skew plus transit time, which helps an agent judge how a sender's `waitUntil` maps onto its own clock.
+
+### 6.8 Passing an overture on
+
+A hop that passes an overture on, whether escalating through layers of agents or performing a double-consent introduction, MUST send its own overture, signed under its own AID, with its own `u` and `dt`, and MUST attach the original message unaltered as a nested group (§4.3) (`4uvlnnx4`). It never forwards the original as a live send and never wraps it in a message that says nothing of its own. Its overture's `triggeredBy` MUST reference the triggering overture's SAID in `said` and the attached message's exn SAID in `exn`. The receiving agent MUST refuse the hop's overture, as malformed, unless the attached message has exactly that exn SAID and contains an overture with exactly that SAID (`5xwgkz20`), and MUST verify the attached message's signatures as §4.4 requires.
+
+Each hop is the requester of the next, and only each hop's own send is judged for freshness, so a slow layer never makes the overture stale. Escalation may nest to any depth.
+
+Because the original sender's signature covers its whole message, passing an overture on discloses every overture in the message it arrived in, with their parameters, purposes and evidence SAIDs (`7gcqnese`). It also discloses the original's attached evidence, so a hop is a Discloser in ACDC's sense and MUST apply any terms of use the evidence's original disclosure carries; a hop that cannot pass the evidence on under its terms MUST NOT pass the overture on (`4y5jkshj`).
+
+*Advice to implementers:* a requester should send any overture it expects to be passed on, such as an introduction, in its own batch, and should not attach evidence it does not want re-disclosed.
+
+### 6.9 Delivery on the agent's initiative
+
+Delivery initiated by the agent is an optional feature of each binding, used only when the requester has advertised an endpoint (`4yzm2pn6`). A requester advertises one by sending KERI's own signed endpoint replies before its message in the same stream (§4.3): `/end/role/add` authorizing the AID that receives for it, such as a mailbox it chose or its own agent, and `/loc/scheme` giving that AID's URL. These are governed by KERI's BADA rules, so a later message can carry newer ones. The agent delivers status reports there. The agent hosts no mailbox for requesters; a requester that advertises no endpoint polls.
+
+When a requester works through its own agent, that agent is the requester toward the other agent, signs its own overtures (§6.8) and advertises its own endpoint.
+
+### 6.10 Identity, key state and endpoints
+
+A requester is identified by its AID, which may be transferable or non-transferable. If a requester's key changes under a non-transferable AID, it becomes a new requester, and its earlier overtures stay scoped to the old AID. Before it verifies a requester's signature, an agent needs that AID's key state: it may already have it, or the requester sends its KEL before the message (§4.3) or gives an OOBI. An agent MAY decline to resolve an OOBI from a requester whose overture it has not admitted. A requester need not anchor an overture's signature in its KEL, and if it rotates after admission, the overture stays admitted.
+
+A requester MUST send every later message about an overture (a resend, poll or abort) to the endpoint where it first sent that overture, or to another location published by `/loc/scheme` for the agent AID that receipted it, and never to a different agent's endpoint (`43lr8z7v`).
+
+Every message an agent sends MUST be signed under an agent AID the principal has authorized at the endpoint (§3). Its statements carry as much weight as the authority the agent can prove, through delegation or a GCD chain. If the principal incepted the agent's AID with KERI's Delegate-Is-Delegator (`DID`) trait, the agent's statements carry the principal's weight.
+
+A transport binding MAY add its own transport authentication, such as RFC 9421 HTTP message signatures. It is used only for transport decisions, such as rate limits and blocking abusive callers, and the Overture engine never relies on it (`48r9sm0z`).
+
+### 6.11 Results and the decision path
+
+Every result is either a verifiable artifact, such as an ACDC, a KEL or TEL event, or an IPEX exchange, or a reference that resolves to one, such as an AID's OOBI or a credential SAID with its registry. Verifying a result needs nothing specific to Overture. The status report that gives the outcome states that each result it lists is a result of the overture. A result that can sign, such as a newly created AID, MAY state the same about itself, and an action's catalog entry MAY require that it does (`4662pten`).
+
+Nothing the principal or an agent does can turn an overture into a commitment by the requester. Overture defines no message by which a requester commits. If an outcome would bind the requester, it does so only after the requester signs it separately, having seen it, through the launched action's own countersignature step.
+
+Nothing in Overture reveals whether policy, a person or nested agents decided, though a principal may choose to say more. The principal's involvement shows only where a result must carry the principal's own signature. Declining never needs escalation. An act that lies outside the agent's signing authority must involve whoever holds that authority before it completes. Whoever signs a result MUST be able to prove a chain of representation back to the principal.
