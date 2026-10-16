@@ -105,3 +105,123 @@ An Overture engine MUST verify each message it receives against the signer's lat
 The signatures on a passed-on message attached inside another (§6.8) are verified, at every depth of nesting, against each signer's latest establishment event, and the carrying message is refused if a signer has rotated since signing (`3j0mdxh4`). Such a message is not judged for freshness, because it may be old.
 
 *Advice to implementers:* keripy performs both checks only in KRAM, which `Kevery` leaves off unless `enableKram` is set; without KRAM, keripy verifies a signature against whichever establishment event it cites and never checks freshness. KRAM checks only the message received, never one attached inside it, so an implementation checks attached messages itself. An implementation that relies on KRAM should refuse to start when KRAM is off, unless the operator passes an explicit override, and should warn at every start with that override.
+
+## 5. Messages
+
+### 5.1 Batch
+
+Route `/overture/batch`. Sent by a requester to ask the principal for what its overtures say (`5xwgkz20`).
+
+- `i`: the requester's AID. `ri`: the principal's AID.
+- `a.overtures`: REQUIRED. A list of one or more overtures.
+- `a.waitUntil`: OPTIONAL. A time until which the requester asks the agent to hold the exchange open (§6.7).
+
+Each overture is a JSON object with these fields:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `d` | yes | The overture's own SAID (§6.2). |
+| `u` | yes | A salty nonce of about 128 bits of entropy, made fresh for this overture and never a counter, so two identical asks are two overtures and the SAID reveals nothing about a guessable overture's content. |
+| `action` | yes | The SAID (`$id`) of the catalog entry for the one action asked for (§8). |
+| `params` | yes | The action's parameters. They MUST validate against the catalog entry referenced by `action`. |
+| `prereqs` | no | SAIDs of overtures that must succeed before this one is acted on (§6.5). |
+| `preconditions` | no | A map of preconditions (§7). |
+| `purpose` | no | Text the requester writes for a person, saying why it asks. It is the requester's signed claim and is never a gate (`6yusrcwc`). |
+| `triggeredBy` | no | An object with `said`, the SAID of the overture that caused this one, and `exn`, the exn SAID of the message that carried it (§6.8). |
+| `evidence` | no | SAIDs of the authority evidence this overture relies on; for each GCD chain, its leaf credential's SAID. |
+
+Attachments: the requester's signatures; the message referenced by each `triggeredBy`, nested; and the evidence each `evidence` entry references, nested, with the rest of each chain. Before the batch in the same stream, the requester MAY send its KEL (§6.10) and its endpoint replies (§6.9).
+
+```json
+"a": {
+  "overtures": [
+    { "d": "EAbc...", "u": "0AB3...", "action": "E...revoke-license", "params": { "credential": "E...lost" } },
+    { "d": "EXyz...", "u": "0AQ9...", "action": "E...issue-license", "params": { },
+      "prereqs": ["EAbc..."], "purpose": "Replace my lost license." }
+  ]
+}
+```
+
+### 5.2 Receipt
+
+Route `/overture/receipt`. Signed by an agent to mark admission, or by a requester to acknowledge a status report (`9z0lpky7`, `6fcnv3q0`).
+
+- `i`: the signer's AID. `ri`: the AID of the party the receipt is sent to. `dt`: the signer's time; on an `admitted` receipt, the time of admission.
+- `a.receipts`: REQUIRED. A list of one or more receipts.
+- `a.nextPoll`: OPTIONAL, and only in a receipt an agent signs (§6.7).
+
+Each receipt:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `meaning` | yes | `admitted` or `seen`. No other value is defined in version 1. |
+| `said` | yes | For `admitted`, the overture's SAID, which is also the digest of the admitted content. For `seen`, the exn SAID of the status report seen. |
+| `keptUntil` | for `admitted` | The time until which the agent commits to keep the overture's status and outcome, and will not answer `unknown` about it (§6.6). It MUST NOT appear on `seen`. |
+
+The meanings are:
+
+- `admitted`: signed by an agent. The agent has admitted the overture as a work item that later polls and aborts can refer to, and acknowledges that it has been given notice of the overture's content (§6.4).
+- `seen`: signed by a requester over a status report that gives outcomes, to tell the agent it has them (§6.6). It is not a commitment. An agent MUST NOT sign `seen`.
+
+A receipt is not a KERI `rct`, which is reserved for key events.
+
+```json
+"a": {
+  "receipts": [
+    { "meaning": "admitted", "said": "EAbc...", "keptUntil": "2026-11-15T00:00:00.000000+00:00" },
+    { "meaning": "admitted", "said": "EXyz...", "keptUntil": "2026-11-15T00:00:00.000000+00:00" }
+  ],
+  "nextPoll": "2026-10-15T18:00:00.000000+00:00"
+}
+```
+
+### 5.3 Poll
+
+Route `/overture/poll`. Signed by a requester to ask for the status of overtures it sent (`5zj9qmg0`). Answered by a status report.
+
+- `i`: the requester's AID. `ri`: the principal's AID.
+- `a.saids`: REQUIRED. The SAIDs of the overtures asked about, one or more, read in the requester's scope.
+- `a.waitUntil`: OPTIONAL (§6.7).
+
+```json
+"a": { "saids": ["EAbc...", "EXyz..."], "waitUntil": "2026-10-15T17:05:00.000000+00:00" }
+```
+
+### 5.4 Abort
+
+Route `/overture/abort`. Signed by a requester to withdraw overtures it sent. Answered by a status report giving whatever holds for each overture when the abort arrives. An abort carries no `waitUntil`.
+
+- `i`: the requester's AID. `ri`: the principal's AID.
+- `a.saids`: REQUIRED. The SAIDs of the overtures to withdraw, one or more.
+
+```json
+"a": { "saids": ["EXyz..."] }
+```
+
+### 5.5 Status report
+
+Route `/overture/status`. Signed by an agent (`30urjn80`, `8ryggr28`). It answers a poll, an abort, or a batch sent with `waitUntil`, and is what the agent sends when it delivers on its own initiative.
+
+- `i`: the agent's AID. `ri`: the requester's AID. `dt`: the agent's time.
+- `a.statuses`: REQUIRED. One item per overture the message references.
+- `a.nextPoll`: OPTIONAL. It covers only the items still `pending` (§6.7).
+
+Each status:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `said` | yes | The overture's SAID. |
+| `status` | yes | `pending`, `unknown`, or one of the outcomes `completed`, `declined`, `expired`, `failed`, `aborted`, `precluded` (§6.3). |
+| `results` | no | Only with an outcome. A list of results, each `{"said": ...}` for an artifact, optionally with `registry` for a credential checked by reference, or `{"aid": ..., "oobi": ...}` for a new identifier. On `aborted`, it lists anything already done. Each result the message attaches is committed by its SAID here. |
+| `reason` | no | Free text, given only when the principal chooses (§6.3). |
+
+```json
+"a": {
+  "statuses": [
+    { "said": "EAbc...", "status": "completed", "results": [ { "said": "E...revocation event" } ] },
+    { "said": "EXyz...", "status": "pending" },
+    { "said": "EQrs...", "status": "unknown" }
+  ],
+  "nextPoll": "2026-10-15T18:00:00.000000+00:00"
+}
+```
