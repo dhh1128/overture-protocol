@@ -46,6 +46,9 @@ def main(argv=None, *, run=serve) -> None:
     parser.add_argument("--schemas", type=Path, help=(
         "A directory of SAIDified credential schemas (*.json), so attached evidence of those "
         "schemas can be checked."))
+    parser.add_argument("--push-to-private", action="store_true", help=(
+        "Let pushes reach loopback and private addresses, such as a mailbox on this machine. "
+        "Requesters choose where pushes go, so leave this off for an agent strangers reach."))
     args = parser.parse_args(argv)
     args.data.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(args.data, 0o700)
@@ -58,7 +61,7 @@ def main(argv=None, *, run=serve) -> None:
     print(f"OOBI      {standin.oobi()}", flush=True)
     for said in load_schemas(standin.engine, args.schemas):
         print(f"Schema    {said}", flush=True)
-    pusher = Pusher(standin.engine)
+    pusher = Pusher(standin.engine, allow_private=args.push_to_private)
     pusher.start()
     try:
         run(app(standin), args.host, args.port)

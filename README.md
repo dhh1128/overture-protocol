@@ -29,7 +29,7 @@ uv run pytest                  # the tests, at 100% branch coverage
 uv run overture-standin        # a stand-in agent on http://127.0.0.1:5642
 ```
 
-The stand-in prints its principal's AID, its own AID and an OOBI that resolves both. It admits every overture and completes it at once unless `--script` gives it a JSON file of rules per action, such as `{"actions": {"Issue a credential": {"after": 30, "status": "declined"}}}`. It pushes each outcome to a requester that advertised a mailbox or agent endpoint (spec §6.9). `--schemas DIR` gives it SAIDified credential schemas, so it can check attached evidence that uses them. `overture.requester.Requester` builds a requester's messages and checks the agent's answers, and `overture.issuing.Issuer` issues test credentials to attach as evidence.
+The stand-in prints its principal's AID, its own AID and an OOBI that resolves both. It admits every overture and completes it at once unless `--script` gives it a JSON file of rules per action, such as `{"actions": {"Issue a credential": {"after": 30, "status": "declined"}}}`. It pushes each outcome to a requester that advertised a mailbox or agent endpoint (spec §6.9), at public addresses only unless `--push-to-private` is given, as it must be for a mailbox on the same machine. `--schemas DIR` gives it SAIDified credential schemas, so it can check attached evidence that uses them. `overture.requester.Requester` builds a requester's messages and checks the agent's answers, and `overture.issuing.Issuer` issues test credentials to attach as evidence.
 
 ## Relationship to other specifications
 

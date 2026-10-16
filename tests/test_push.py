@@ -126,12 +126,83 @@ def test_the_http_post_sends_cesr_and_reads_the_status(tmp_path):
     thread.start()
     url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        assert push.post(url, b"-B") is True
-        assert push.post(url, b"-B") is False
+        assert push.post(url, b"-B", allow_private=True) is True
+        assert push.post(url, b"-B", allow_private=True) is False
     finally:
         server.shutdown()
     assert got[0] == ("application/cesr", b"-B")
-    assert push.post("http://127.0.0.1:1", b"-B") is False
+    assert push.post("http://127.0.0.1:1", b"-B", allow_private=True) is False
+
+
+def serve(handler_post):
+    class Handler(http.server.BaseHTTPRequestHandler):
+        do_POST = handler_post
+
+        def log_message(self, *a):
+            pass
+
+    server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    return server, f"http://127.0.0.1:{server.server_address[1]}"
+
+
+def test_a_push_to_a_private_address_is_refused_before_anything_is_sent():
+    """The URL comes from a stranger's replies, so by default only public addresses are
+    reached, judged on the connected socket (this.i 97dehty6)."""
+    got = []
+
+    def handler(self):
+        got.append(self.path)
+        self.send_response(204)
+        self.end_headers()
+
+    server, url = serve(handler)
+    try:
+        assert push.post(url, b"-B") is False
+        assert push.post(url.replace("http:", "https:"), b"-B") is False
+    finally:
+        server.shutdown()
+    assert got == []
+
+
+def test_a_push_follows_no_redirect():
+    got = []
+
+    def handler(self):
+        got.append(self.path)
+        self.send_response(307)
+        self.send_header("Location", "/elsewhere")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    server, url = serve(handler)
+    try:
+        assert push.post(url + "/start", b"-B", allow_private=True) is False
+    finally:
+        server.shutdown()
+    assert got == ["/start"]
+
+
+def test_a_push_goes_only_to_http_or_https():
+    assert push.post("file:///etc/passwd", b"-B", allow_private=True) is False
+
+
+@pytest.mark.parametrize("address,ok", [("93.184.216.34", True), ("2606:2800:220:1::1", True),
+                                        ("127.0.0.1", False), ("10.1.2.3", False),
+                                        ("169.254.1.1", False), ("::1", False),
+                                        ("fe80::1%eth0", False), ("224.0.0.1", False),
+                                        ("0.0.0.0", False)])
+def test_public_addresses(address, ok):
+    assert push.public(address) is ok
+
+
+def test_the_pusher_passes_on_its_operators_choice_of_private_addresses(world, monkeypatch):
+    seen = []
+    monkeypatch.setattr(push, "post", lambda url, body, allow_private=False: seen.append(
+        allow_private) or True)
+    admit(world, [issue()], advertise(world))
+    pusher = push.Pusher(world["eng"], allow_private=True)
+    assert push.deliver(world["eng"], pusher.post) == 1 and seen == [True]
 
 
 def test_the_pusher_delivers_in_the_background_until_stopped(world):

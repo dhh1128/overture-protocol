@@ -195,3 +195,23 @@ def test_the_command_loads_the_credential_schemas_it_is_given(tmp_path, capsys):
              run=lambda api, h, p: known.append(api))
     out = capsys.readouterr().out
     assert f"Schema    {schemer.said}" in out
+
+
+@pytest.mark.parametrize("argv,allowed", [([], False), (["--push-to-private"], True)])
+def test_the_command_pushes_to_private_addresses_only_when_told(tmp_path, monkeypatch, argv, allowed):
+    from overture.standin import cli
+    made = []
+
+    class Pusher:
+        def __init__(self, agent, *, allow_private):
+            made.append(allow_private)
+
+        def start(self):
+            pass
+
+        def stop(self):
+            pass
+
+    monkeypatch.setattr(cli, "Pusher", Pusher)
+    cli.main(["--data", str(tmp_path / "s"), *argv], run=lambda *a: None)
+    assert made == [allowed]

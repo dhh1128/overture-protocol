@@ -418,6 +418,8 @@ Holding the exchange open for `waitUntil` is long polling as described in RFC 62
 
 **Unknown preconditions and actions.** An agent refuses an overture with a precondition it does not understand (§7) or an action whose entry it does not know (§8), so a later extension is never silently ignored by an earlier agent.
 
+**Pushes a requester aims.** The URL an agent pushes to (§6.9) comes from a stranger's signed replies, so a push is a request the requester aims at a place of its choosing, including the agent's own network. An agent SHOULD connect only to public addresses unless its operator allows others, SHOULD judge the address it actually connected to rather than the one a name first resolved to, and SHOULD NOT follow redirects (`97dehty6`).
+
 ## 12. Privacy considerations
 
 **The decision path.** Nothing in Overture reveals whether policy, a person or nested agents decided (§6.11). Reasons are omitted by default, and a status report shows only `pending` until an outcome. `nextPoll` and response timing can still reveal behind-the-counter facts, such as when a person is available; agents should give coarse or jittered values and may add random delays.
