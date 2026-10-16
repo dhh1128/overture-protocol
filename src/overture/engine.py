@@ -148,7 +148,7 @@ class Agent:
     def _check_attached(self, msg: wire.Message) -> None:
         for nest in msg.nests:
             if nest.serder.ilk != "exn":
-                continue  # evidence ACDCs are verified by their own means, not here
+                continue  # attached ACDC evidence is not yet verified here ~2rcr
             try:
                 verify.signatures(nest, self.kvy)
             except Refusal as refusal:
