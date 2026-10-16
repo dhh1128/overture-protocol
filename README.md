@@ -16,7 +16,7 @@ Overture is to an agent what the counter is to a shop. Anyone can walk up and as
 
 Draft 1.0. The normative specification is [`docs/spec.md`](docs/spec.md), derived from the approved requirements in [`docs/requirements.md`](docs/requirements.md) and the message layouts in [`docs/messages.md`](docs/messages.md); the reasons for each choice are decision nodes in [`this.i`](this.i). Beside it are the JSON Schemas for each message in [`schemas/`](schemas), the initial action catalog in [`catalog/`](catalog), and test vectors in [`vectors/`](vectors).
 
-The reference package in [`src/overture`](src/overture) is Python on keripy's main branch. It builds and checks every Overture message, runs an agent's check order, admission and outcomes, and includes a stand-in agent that client developers can build against before real agents exist.
+The reference package in [`src/overture`](src/overture) is Python on keripy's main branch. It builds and checks every Overture message, runs an agent's check order, admission and outcomes, and includes a stand-in agent that client developers can build against before real agents exist. A keripy host installs it by mounting `overture.http.HttpEnd`, which extends keripy's `HttpEnd`, at its ingress, and by parsing with `overture.exchanging.Exchanger`, which extends keripy's `Exchanger`, for Overture messages that arrive another way.
 
 Overture is being designed under a clean-room process. See [`docs/provenance.md`](docs/provenance.md).
 

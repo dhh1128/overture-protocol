@@ -113,15 +113,22 @@ class Agent:
 
     def receive(self, stream: bytes) -> Answer:
         """Check one stream in the order of spec §6.1, act on it, and return the answer."""
+        return self._answer(lambda: self._check_message(stream))
+
+    def receive_parsed(self, found: list[wire.Message]) -> Answer:
+        """The same, for messages a host's parser has already parsed, its KELs, replies and
+        TEL events already processed, and its size already bounded by the transport."""
+        return self._answer(lambda: self._check_parsed(found))
+
+    def _answer(self, check) -> Answer:
         try:
-            msg = self._check_message(stream)
+            msg = check()
         except Refusal as refusal:
             return Answer(refusal=refusal)
         name = msg.route.removeprefix(messages.PREFIX)
         return getattr(self, f"_on_{name}")(msg)
 
     def _check_message(self, stream: bytes) -> wire.Message:
-        now = self.clock()
         if len(stream) > self.max_size:                                   # 1. bound
             raise Refusal(errors.TOO_LARGE)
         try:                                                              # 2. parse
@@ -129,6 +136,10 @@ class Agent:
                                tvy=self.evidence.tvy)
         except Exception as ex:
             raise Refusal(errors.MALFORMED, f"The stream does not parse: {ex}.") from None
+        return self._check_parsed(found)
+
+    def _check_parsed(self, found: list[wire.Message]) -> wire.Message:
+        now = self.clock()
         found = [m for m in found if m.route.startswith(messages.PREFIX)]
         if len(found) != 1:
             raise Refusal(errors.NO_MESSAGE if not found else errors.MALFORMED,
