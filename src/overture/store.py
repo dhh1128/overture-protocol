@@ -2,7 +2,8 @@
 
 An admitted overture is remembered in its requester's scope with its status for as long as
 it is pending, and with its outcome until its keptUntil time, unless the requester's seen
-lets the agent forget it sooner (6fcnv3q0). Accepted message SAIDs are remembered for the
+lets the agent forget it sooner (6fcnv3q0). Outcomes pushed to the requester are marked
+delivered (97dehty6). Accepted message SAIDs are remembered for the
 freshness window so a replay is refused (35wllumn).
 """
 
@@ -23,6 +24,8 @@ create table if not exists reports (
   said text not null, requester text not null, saids text not null,
   primary key (said, requester));
 create table if not exists accepted (said text primary key, dt text not null);
+create table if not exists deliveries (
+  requester text not null, said text not null, primary key (requester, said));
 """
 
 
@@ -106,6 +109,19 @@ class Store:
         with self.db:
             self.db.execute("delete from overtures where status != 'pending' and kept_until < ?",
                             (_t(now),))
+            self.db.execute("delete from deliveries where not exists (select 1 from overtures o"
+                            " where o.requester = deliveries.requester and o.said = deliveries.said)")
+
+    def undelivered(self) -> list[Record]:
+        """Ended overtures whose outcome has not been pushed to their requester."""
+        return self._rows("status != 'pending' and not exists (select 1 from deliveries d"
+                          " where d.requester = overtures.requester and d.said = overtures.said)",
+                          ())
+
+    def delivered(self, requester: str, saids: list[str]) -> None:
+        with self.db:
+            self.db.executemany("insert or ignore into deliveries values (?, ?)",
+                                [(requester, s) for s in saids])
 
     def report(self, said: str, requester: str, saids: list[str]) -> None:
         with self.db:

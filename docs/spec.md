@@ -319,7 +319,7 @@ Because the original sender's signature covers its whole message, passing an ove
 
 ### 6.9 Delivery on the agent's initiative
 
-Delivery initiated by the agent is an optional feature of each binding, used only when the requester has advertised an endpoint (`4yzm2pn6`). A requester advertises one by sending KERI's own signed endpoint replies before its message in the same stream (§4.3): `/end/role/add` authorizing the AID that receives for it, such as a mailbox it chose or its own agent, and `/loc/scheme` giving that AID's URL. These are governed by KERI's BADA rules, so a later message can carry newer ones. The agent delivers status reports there. The agent hosts no mailbox for requesters; a requester that advertises no endpoint polls.
+Delivery initiated by the agent is an optional feature of each binding, used only when the requester has advertised an endpoint (`4yzm2pn6`). A requester advertises one by sending KERI's own signed endpoint replies before its message in the same stream (§4.3): `/end/role/add` authorizing the AID that receives for it, such as a mailbox it chose or its own agent, and `/loc/scheme` giving that AID's URL, each after the KEL of the AID that signs it. These are governed by KERI's BADA rules, so a later message can carry newer ones. The agent delivers status reports there. The agent hosts no mailbox for requesters; a requester that advertises no endpoint polls.
 
 When a requester works through its own agent, that agent is the requester toward the other agent, signs its own overtures (§6.8) and advertises its own endpoint.
 

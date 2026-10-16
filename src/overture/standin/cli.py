@@ -9,6 +9,7 @@ from wsgiref.simple_server import WSGIServer, make_server
 from keri.app import habbing
 from keri.core.signing import Salter
 
+from ..push import Pusher
 from . import StandIn, load_schemas, load_script
 from .http import app
 
@@ -57,8 +58,11 @@ def main(argv=None, *, run=serve) -> None:
     print(f"OOBI      {standin.oobi()}", flush=True)
     for said in load_schemas(standin.engine, args.schemas):
         print(f"Schema    {said}", flush=True)
+    pusher = Pusher(standin.engine)
+    pusher.start()
     try:
         run(app(standin), args.host, args.port)
     finally:
+        pusher.stop()
         standin.close()
         hby.close()

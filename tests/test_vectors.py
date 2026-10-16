@@ -31,7 +31,7 @@ def test_every_refusal_code_has_its_check_step():
 
 def test_the_refusals_vector_covers_steps_three_to_eleven(generated):
     steps = {e["expect"]["refused"]["step"] for e in generated["refusals"]["exchanges"]
-             if "refused" in e["expect"]}
+             if "refused" in e.get("expect", {})}
     assert steps == {3, 4, 5, 6, 7, 9, 10, 11}
 
 
@@ -49,14 +49,14 @@ def test_main_writes_every_vector(tmp_path, generated, capsys):
 def test_every_refusal_code_but_a_change_of_major_appears_in_some_vector(generated):
     """A change of major (step 9) needs an agent supporting two majors, and only 1 exists."""
     seen = {e["expect"]["refused"]["code"] for v in generated.values() for e in v["exchanges"]
-            if "refused" in e["expect"]}
+            if "refused" in e.get("expect", {})}
     codes = {v.code for v in vars(errors).values() if isinstance(v, errors.Code)}
     assert codes - seen == {errors.MAJOR_CHANGED.code}
 
 
 def test_the_message_refusals_vector_covers_steps_one_to_three(generated):
     steps = {e["expect"]["refused"]["step"] for e in generated["message-refusals"]["exchanges"]
-             if "refused" in e["expect"]}
+             if "refused" in e.get("expect", {})}
     assert steps == {1, 2, 3}
 
 

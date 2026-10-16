@@ -7,11 +7,13 @@ to admit an overture, and what its outcome will be and when.
 
 import datetime
 import re
+import threading
 from dataclasses import dataclass, field
 from typing import Protocol
 
 from keri.core.eventing import Kevery
 from keri.help.helping import toIso8601
+from keri.kering import Roles
 
 from . import catalog as catalogs
 from . import errors, messages, overtures, schemas, verify, wire
@@ -46,6 +48,15 @@ class Wait:
     requester: str
     saids: list[str]
     until: datetime.datetime
+
+
+@dataclass
+class Delivery:
+    """Outcomes to push to a requester, and the URLs it advertised (spec §6.9; 97dehty6)."""
+
+    requester: str
+    saids: list[str]
+    urls: list[str]
 
 
 @dataclass
@@ -89,6 +100,7 @@ class Agent:
         self.clock = clock or (lambda: datetime.datetime.now(datetime.UTC))
         self.kvy = Kevery(db=hab.db, lax=False, local=False, rvy=getattr(hab, "rvy", None))
         self.evidence = Evidence(hab.db, reger=reger)
+        self.lock = threading.RLock()  # held by anything that calls in from another thread
 
     def learn_schema(self, schemer) -> None:
         """Let the agent check attached credentials of this schema (spec §6.1, step 8)."""
@@ -352,6 +364,29 @@ class Agent:
         if ended:
             self.store.report(exn, requester, ended)
         return bytes(stream)
+
+    # --- delivery on the agent's initiative ---------------------------------------------
+
+    def endpoints(self, requester: str) -> list[str]:
+        """The http and https URLs of the AIDs ``requester`` authorized to receive for it."""
+        urls = []
+        for role in (Roles.mailbox, Roles.agent):
+            for _, schemes in self.hab.fetchRoleUrls(cid=requester, role=role).get(role, {}).items():
+                urls += [u for scheme, u in schemes.items() if scheme in ("http", "https")]
+        return urls
+
+    def deliveries(self) -> list[Delivery]:
+        """What to push now: each requester's undelivered outcomes, where it gave a URL."""
+        self.advance()
+        by_requester: dict[str, list[str]] = {}
+        for r in self.store.undelivered():
+            by_requester.setdefault(r.requester, []).append(r.said)
+        out = []
+        for requester, saids in by_requester.items():
+            urls = self.endpoints(requester)
+            if urls:
+                out.append(Delivery(requester, saids, urls))
+        return out
 
     def has_news(self, wait: Wait) -> bool:
         """True when a held exchange should be answered now (spec §6.7)."""

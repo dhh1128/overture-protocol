@@ -16,6 +16,8 @@ Each exchange has `agentTime`, the agent's clock when the stream arrives (freshn
 - `{"status": 204, "refused": {"step": N, "code": ...}}`: a refusal, which is silent on the wire. `step` is the step of the check order in spec §6.1 that refuses the stream; `code` is the reason the reference package logs, which another implementation need not use.
 - `{"status": 400, "supportedMajors": [...], "refused": ...}`: an unsupported major version, which the HTTP binding may report as problem details (spec §10).
 
+An exchange may instead have `push`: at `agentTime` the agent runs a pass of delivery on its own initiative (spec §6.9), and `push` lists each `url` it POSTs to with the `body` it sends, empty when it has nothing to push.
+
 To load an agent's key state before replaying a scenario, parse `agent.oobi`. Streams are sent with the agent's clock set to each exchange's `agentTime`, and later exchanges depend on earlier ones, so replay a file from the top.
 
 Together the files cover every refusal reason the reference package has except a change of major version between sends (step 9), which needs an agent supporting two majors; the test suite checks that coverage.

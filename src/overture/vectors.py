@@ -24,13 +24,14 @@ from keri.core.signing import Salter
 from keri.help import helping
 from keri.kering import Kinds, Vrsn_2_0
 
-from . import catalog, engine, errors, messages, overtures, wire
+from . import catalog, engine, errors, messages, overtures, push, wire
 from .issuing import Issuer, schema
 from .requester import Requester
 from .standin import StandIn
 
 T0 = datetime.datetime(2026, 10, 15, 17, 0, tzinfo=datetime.UTC)
 URL = "http://agent.example:5642"
+MAILBOX = "http://mailbox.example:5643"
 SCHEMA = "EBdXt3gIXOf2BBWNHdSXCJnFJL5OuQPyM5K0neuniccM"
 CREDENTIAL = "EKMXqyMQmOy0RuEj1VgOK9aD4GYR0D8Dcj0kssQtcY4-"
 ISSUEE = "DKxy2sgzfplyr-tgwIxS19f2OchFHtLwPWD3v4oYimBx"
@@ -127,6 +128,13 @@ class Scenario:
             record["expect"] = {"status": 204}
         self.exchanges.append(record)
         return (reader or self.requester).read(b"".join(streams)) if streams else []
+
+    def push(self, note: str) -> None:
+        """Run one delivery pass at the current agent time, and record what it POSTs."""
+        sent = []
+        push.deliver(self.standin.engine, lambda url, body: sent.append((url, body)) or True)
+        self.exchanges.append({"note": note, "agentTime": self.clock.stamp(), "push": [
+            {"url": url, "body": body.decode()} for url, body in sent]})
 
     @staticmethod
     def _refused(refusal) -> dict:
@@ -444,6 +452,23 @@ def partial_batch(s: Scenario):
     return "A batch refused in part, and a decline with a reason.", "§6.1, §6.3, §6.4"
 
 
+def pushed(s: Scenario):
+    mailbox = s.party("vector-mailbox-0", b"vector-mailbox-0")
+    st = s.clock.stamp()
+    advert = (s.requester.kel() + mailbox.kel()
+              + bytes(s.requester.hab.makeEndRole(eid=mailbox.hab.pre, role="mailbox", stamp=st))
+              + bytes(mailbox.hab.makeLocScheme(url=MAILBOX, scheme="http", stamp=st)))
+    o = issue(99)
+    s.send(advert + s.requester.batch([o], stamp=s.clock.stamp(), with_kel=False),
+           "The requester's KEL, its mailbox's KEL, its /end/role/add naming the mailbox, the "
+           "mailbox's /loc/scheme, then the batch.")
+    s.push("Nothing to push while the overture is pending.")
+    s.tick(30)
+    s.push("At its outcome the agent POSTs a status report to the mailbox.")
+    s.push("Delivered once, so nothing more is pushed.")
+    return "Delivery on the agent's initiative to an advertised mailbox.", "§6.9, §10"
+
+
 SCENARIOS = {
     "admit-and-complete": (admit_and_complete, {}),
     "pending-then-complete": (pending_then_complete, {"actions": {
@@ -463,6 +488,7 @@ SCENARIOS = {
     "message-refusals": (message_refusals, {}, {"max_size": 4096}),
     "requesters": (requesters, {}),
     "starts-late": (starts_late, {"actions": {"Issue a credential": {"after": 60}}}),
+    "pushed": (pushed, {"actions": {"Issue a credential": {"after": 30}}}),
     "partial-batch": (partial_batch, {"actions": {"Revoke a credential": {
         "status": "declined", "reason": "No such licence is on file."}}}),
 }

@@ -18,7 +18,6 @@ server sleeps between looks.
 
 import datetime
 import json
-import threading
 import time
 
 import falcon
@@ -37,7 +36,7 @@ class Ingress:
         self.hold_cap = hold_cap
         self.interval = interval
         self.sleep = sleep
-        self.lock = threading.Lock()
+        self.lock = agent.lock
 
     def on_post(self, req, resp):
         if req.get_header("CESR-ATTACHMENT"):
