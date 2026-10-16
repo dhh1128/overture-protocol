@@ -237,7 +237,7 @@ An agent checks a message in this order, and each step relies on the one before 
 3. **Currency and freshness.** It applies §4.4 to the message.
 4. **Address.** It refuses a message whose `ri` is not its principal's AID (§4.1).
 5. **Version.** It refuses a message whose major version it does not support (§9).
-6. **Shape.** It validates the `a` block against the JSON Schema for the route and version.
+6. **Shape.** It validates the `a` block against the JSON Schema for the route and major version, published in [`schemas/`](../schemas) (`2uvl4uuz`).
 7. **SAIDs.** It verifies the SAID of every overture in the message, and of every overture in each attached message, by the verification protocol of CESR's section "Self-addressing identifier (SAID)" (§6.2).
 8. **Attached messages.** It verifies each attached message's signatures (§4.4) and each `triggeredBy` match (§6.8).
 9. **Batch integrity.** It checks the batch rules of §6.5.
@@ -370,7 +370,7 @@ A catalog entry MUST be a JSON Schema, in the JSON Schema 2020-12 dialect, that 
 
 An action whose result exists to keep the principal unlinkable, such as creating a relationship AID, SHOULD NOT use KERI delegation from the principal as the result's representation evidence, because a delegated AID names its delegator in its inception event for anyone to read. Its entry SHOULD specify evidence disclosed only to the requester, such as a GCD credential blinded with `u`, as the default (`7l9nr4dn`).
 
-This specification ships a set of initial entries, enough to run the test cases in Appendix A. They are published as separate files beside it.
+This specification ships a set of initial entries, enough to run the test cases in Appendix A, in [`catalog/`](../catalog), one file per entry. Their placements on the GCD grid are first judgments, open to revision (`4zmcmynl`).
 
 ### 8.1 Relationship to IPEX
 
@@ -435,6 +435,8 @@ Holding the exchange open for `waitUntil` is long polling as described in RFC 62
 **Requester endpoints.** A requester that advertises an endpoint (§6.9) discloses where it can be reached. By default it advertises none and polls.
 
 ## Appendix A. Test cases
+
+Machine-readable vectors for these cases, and for each step of §6.1 refusing, are in [`vectors/`](../vectors), generated and checked by the reference package (`8kzvymmy`).
 
 - **Double-consent introduction** (after Aries RFC 0028). R asks agent A, acting for P: "introduce me to T". A sends T's agent its own overture, attaching R's original unaltered (§6.8). This tests passing an overture on, an outer `finishBy` bounding the inner one, what T may learn about R before consenting (only what R sent in that one batch), how the status reports R receives protect T's privacy, and a result that means "invitation delivered" rather than "relationship formed".
 - **"Start a protocol with me"**, using coin flip (Aries RFC 0193) as the example, with the protocol identified in `params`.

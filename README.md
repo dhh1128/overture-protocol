@@ -14,9 +14,22 @@ Overture is to an agent what the counter is to a shop. Anyone can walk up and as
 
 ## Status
 
-Design stage. The approved requirements are in [`docs/requirements.md`](docs/requirements.md) and the message layouts in [`docs/messages.md`](docs/messages.md); the reasons for each choice are decision nodes in [`this.i`](this.i). The normative specification, JSON Schemas, test vectors and a reference stand-in agent come next.
+Draft 1.0. The normative specification is [`docs/spec.md`](docs/spec.md), derived from the approved requirements in [`docs/requirements.md`](docs/requirements.md) and the message layouts in [`docs/messages.md`](docs/messages.md); the reasons for each choice are decision nodes in [`this.i`](this.i). Beside it are the JSON Schemas for each message in [`schemas/`](schemas), the initial action catalog in [`catalog/`](catalog), and test vectors in [`vectors/`](vectors).
+
+The reference package in [`src/overture`](src/overture) is Python on keripy's main branch. It builds and checks every Overture message, runs an agent's check order, admission and outcomes, and includes a stand-in agent that client developers can build against before real agents exist.
 
 Overture is being designed under a clean-room process. See [`docs/provenance.md`](docs/provenance.md).
+
+## Trying it
+
+With [uv](https://docs.astral.sh/uv/) and libsodium installed:
+
+```bash
+uv run pytest                  # the tests, at 100% branch coverage
+uv run overture-standin        # a stand-in agent on http://127.0.0.1:5642
+```
+
+The stand-in prints its principal's AID, its own AID and an OOBI that resolves both. It admits every overture and completes it at once unless `--script` gives it a JSON file of rules per action, such as `{"actions": {"Issue a credential": {"after": 30, "status": "declined"}}}`. `overture.requester.Requester` builds a requester's messages and checks the agent's answers.
 
 ## Relationship to other specifications
 
