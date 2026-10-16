@@ -1,6 +1,5 @@
 """Building and parsing Overture messages (spec §4, §5)."""
 
-import pytest
 from keri.core.eventing import Kevery
 
 from overture import messages, overtures, wire
@@ -60,7 +59,7 @@ def test_an_attached_message_arrives_as_a_nest_with_its_signatures(parties):
     hop = overtures.make(ACTION, {}, triggeredBy={"said": orig.a["overtures"][0]["d"],
                                                  "exn": orig.said})
     stream = messages.batch(r, p.pre, [hop], nests=[original])
-    (msg,), kvy = receive(a, bytes(s.replay()) + bytes(r.replay()) + bytes(stream))
+    (msg,), _ = receive(a, bytes(s.replay()) + bytes(r.replay()) + bytes(stream))
     assert [n.said for n in msg.nests] == [orig.said]
     assert msg.nests[0].tsgs and msg.nests[0].a == orig.a
 

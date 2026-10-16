@@ -17,7 +17,8 @@ def signatures(msg, kvy) -> None:
     """Raise Refusal unless ``msg`` is signed by its sender under current keys."""
     sender = msg.sender
     if not Prefixer(qb64=sender).transferable:
-        return _cigars(msg, sender)
+        _cigars(msg, sender)
+        return
     groups = [g for g in msg.tsgs if g[0].qb64 == sender]
     if not groups or msg.cigars:
         raise Refusal(errors.SIGNATURE_INVALID, f"No signature group from {sender} is attached.")

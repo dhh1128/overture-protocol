@@ -3,7 +3,6 @@
 import json
 
 import pytest
-from keri.core.coring import Saider
 
 from overture import overtures, schemas
 

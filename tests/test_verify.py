@@ -51,7 +51,7 @@ def test_no_signature_from_the_sender_is_refused(parties):
 
 def test_an_unknown_signer_needs_its_key_state(parties):
     r, a, p = parties["requester"], parties["agent"], parties["principal"]
-    (msg,), kvy = receive(a, bytes(r.replay()) + bytes(a_batch(r, p)))
+    (msg,), _ = receive(a, bytes(r.replay()) + bytes(a_batch(r, p)))
     empty = Kevery(db=parties["stranger"].db, lax=False, local=False)
     e = refused(errors.KEY_STATE_MISSING, verify.signatures, msg, empty)
     assert e.code.code.endswith(".r")

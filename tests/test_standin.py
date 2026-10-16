@@ -8,7 +8,7 @@ from falcon import testing
 from keri.app import habbing
 from keri.core.signing import Salter
 
-from overture import catalog, engine, messages, overtures, wire
+from overture import catalog, engine, messages, overtures
 from overture.requester import Requester, admitted, statuses
 from overture.standin import ScriptPolicy, StandIn, load_script
 from overture.standin.http import app
@@ -170,7 +170,7 @@ def test_an_existing_salt_is_tightened_to_owner_only(tmp_path):
     import os
     from overture.standin import cli
     (tmp_path / "salt").write_text("0AAAAAAAAAAAAAAAAAAAAAAA")
-    os.chmod(tmp_path / "salt", 0o644)
+    os.chmod(tmp_path / "salt", 0o640)
     assert cli.salt(tmp_path) == "0AAAAAAAAAAAAAAAAAAAAAAA"
     assert os.stat(tmp_path / "salt").st_mode & 0o777 == 0o600
 
