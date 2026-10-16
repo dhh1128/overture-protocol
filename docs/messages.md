@@ -61,12 +61,13 @@ Each receipt:
 |---|---|---|
 | `meaning` | yes | `admitted` (the agent admitted the overture) or `seen` (the signer received the item, without commitment). |
 | `said` | yes | For `admitted`, the overture's own SAID (`d`), which is also the digest of the admitted content. For `seen`, the exn SAID of the message seen. |
+| `keptUntil` | for `admitted` | The time until which the agent commits to keep the overture's status and outcome, and will not answer "unknown" about it (R13, `8fwdvgmg`). Absent on `seen`. |
 
 ```json
 "a": {
   "receipts": [
-    { "meaning": "admitted", "said": "EAbc..." },
-    { "meaning": "admitted", "said": "EXyz..." }
+    { "meaning": "admitted", "said": "EAbc...", "keptUntil": "2026-11-15T00:00:00.000000+00:00" },
+    { "meaning": "admitted", "said": "EXyz...", "keptUntil": "2026-11-15T00:00:00.000000+00:00" }
   ],
   "nextPoll": "2026-10-15T18:00:00.000000+00:00"
 }
