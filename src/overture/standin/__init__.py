@@ -11,6 +11,7 @@ import datetime
 import json
 from pathlib import Path
 
+from keri.core.scheming import Schemer
 from keri.kering import Roles
 
 from ..engine import Agent, Plan
@@ -84,8 +85,19 @@ class StandIn:
         return {"aid": hab.pre, "oobi": f"{self.url}/oobi/{hab.pre}"}
 
     def close(self) -> None:
+        self.engine.close()
         self.store.close()
 
 
 def load_script(path: Path | None) -> dict:
     return json.loads(Path(path).read_text()) if path else {}
+
+
+def load_schemas(engine: Agent, directory: Path | None) -> list[str]:
+    """Teach ``engine`` each credential schema in ``directory``, and return their SAIDs."""
+    saids = []
+    for path in sorted(Path(directory).glob("*.json")) if directory else []:
+        schemer = Schemer(raw=path.read_bytes())
+        engine.learn_schema(schemer)
+        saids.append(schemer.said)
+    return saids

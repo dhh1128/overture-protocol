@@ -53,6 +53,7 @@ def world(parties, tmp_path):
     r = Requester(parties["requester"], parties["principal"].pre)
     r.learn(bytes(parties["agent"].replay()))
     yield dict(eng=agent, r=r, clock=clock, script=script, store=store, **parties)
+    agent.close()
     store.close()
 
 

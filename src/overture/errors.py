@@ -37,6 +37,13 @@ ATTACHED_INVALID = Code("e.proof.attached.sig.f",
                         "An attached message's signatures do not verify.")
 TRIGGER_MISMATCH = Code("e.input.format.triggered-by.f",
                         "A triggeredBy does not match the attached message and overture.")
+EVIDENCE_MISSING = Code("e.input.missing.evidence.f",
+                        "An evidence SAID, or a link of its chain, has no attached ACDC.")
+EVIDENCE_STATE_MISSING = Code("e.state.missing.tel.r",
+                              "The agent lacks the TEL or schema needed to check attached evidence.")
+EVIDENCE_INVALID = Code("e.proof.evidence.chain.f", "Attached evidence does not verify.")
+EVIDENCE_REVOKED = Code("e.proof.evidence.revoked.f",
+                        "Attached evidence relies on a revoked credential.")
 DUPLICATE = Code("e.input.format.duplicate.f", "A batch carries the same overture twice.")
 PREREQ_UNKNOWN = Code("e.state.missing.prereq.f",
                       "A prerequisite is neither admitted from this requester nor in the batch.")

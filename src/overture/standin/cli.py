@@ -9,7 +9,7 @@ from wsgiref.simple_server import WSGIServer, make_server
 from keri.app import habbing
 from keri.core.signing import Salter
 
-from . import StandIn, load_script
+from . import StandIn, load_schemas, load_script
 from .http import app
 
 
@@ -42,6 +42,9 @@ def main(argv=None, *, run=serve) -> None:
     parser.add_argument("--port", type=int, default=5642)
     parser.add_argument("--url", help="The URL requesters reach it at (default http://HOST:PORT).")
     parser.add_argument("--script", type=Path, help="A JSON script of outcomes per action.")
+    parser.add_argument("--schemas", type=Path, help=(
+        "A directory of SAIDified credential schemas (*.json), so attached evidence of those "
+        "schemas can be checked."))
     args = parser.parse_args(argv)
     args.data.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(args.data, 0o700)
@@ -52,6 +55,8 @@ def main(argv=None, *, run=serve) -> None:
     print(f"Principal {standin.principal.pre}", flush=True)
     print(f"Agent     {standin.agent.pre}", flush=True)
     print(f"OOBI      {standin.oobi()}", flush=True)
+    for said in load_schemas(standin.engine, args.schemas):
+        print(f"Schema    {said}", flush=True)
     try:
         run(app(standin), args.host, args.port)
     finally:

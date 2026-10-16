@@ -96,7 +96,7 @@ Framing follows CESR v2 (`0xc2dqvw`):
 - Each attached message that the body commits to, whether a passed-on message, an ACDC of an evidence chain or an attached result, MUST be a nested message + attachments group among those attachments, carrying its own signatures.
 - KELs, TEL events and endpoint replies MUST NOT be nested. They are sent before the Overture message in the same stream, as top-level messages, so that the receiver's ordinary KERI processing learns the key state before it verifies the Overture message.
 
-*Advice to implementers:* keripy's parser delivers nested groups to an `exn` handler only for a fixed set of routes, so an implementation built on it must give `/overture/` routes their nests (`630f824j`).
+*Advice to implementers:* keripy's parser delivers nested groups to an `exn` handler only for a fixed set of routes, so an implementation built on it must give `/overture/` routes their nests (`630f824j`). keripy's credential `Verifier` (at commit 0f1966f8) saves a revoked credential rather than refusing it, and does not compare a credential's issuer with the controller of the registry it names, so an implementation built on it checks both itself (§6.1, step 8).
 
 ### 4.4 Freshness and currency
 
@@ -130,7 +130,7 @@ Each overture is a JSON object with these fields:
 | `triggeredBy` | no | An object with `said`, the SAID of the overture that caused this one, and `exn`, the exn SAID of the message that carried it (§6.8). |
 | `evidence` | no | SAIDs of the authority evidence this overture relies on; for each GCD chain, its leaf credential's SAID. |
 
-Attachments: the requester's signatures; the message referenced by each `triggeredBy`, nested; and the evidence each `evidence` entry references, nested, with the rest of each chain. Before the batch in the same stream, the requester MAY send its KEL (§6.10) and its endpoint replies (§6.9).
+Attachments: the requester's signatures; the message referenced by each `triggeredBy`, nested; and the evidence each `evidence` entry references, nested, with the rest of each chain. Before the batch in the same stream, the requester MAY send its KEL (§6.10) and its endpoint replies (§6.9), and SHOULD send the KELs of its evidence's issuers and the TEL events of its evidence's registries.
 
 ```json
 "a": {
@@ -239,7 +239,7 @@ An agent checks a message in this order, and each step relies on the one before 
 5. **Version.** It refuses a message whose major version it does not support (§9).
 6. **Shape.** It validates the `a` block against the JSON Schema for the route and major version, published in [`schemas/`](../schemas) (`2uvl4uuz`).
 7. **SAIDs.** It verifies the SAID of every overture in the message, and of every overture in each attached message, by the verification protocol of CESR's section "Self-addressing identifier (SAID)" (§6.2).
-8. **Attached messages.** It verifies each attached message's signatures (§4.4) and each `triggeredBy` match (§6.8).
+8. **Attached messages.** It verifies each attached message's signatures (§4.4) and each `triggeredBy` match (§6.8). For each SAID in an overture's `evidence`, the message that carries the overture MUST carry a nested ACDC with that SAID, and that ACDC and every ACDC its edges reach MUST verify by ACDC's rules against the issuer's KEL and the registry's TEL as the agent holds them: its SAID and schema, its issuer being the controller of the registry it names, its issuance there and not its revocation, and each edge with its operator (`2s0z8frg`). An agent that lacks a TEL or a schema it needs refuses for that reason, which a requester can fix by sending the TEL events or the agent can fix by learning the schema. An attached ACDC that no `evidence` SAID reaches is not checked. Whether verified evidence is enough authority for the action is decided behind the counter.
 9. **Batch integrity.** It checks the batch rules of §6.5.
 10. **Catalog.** For each overture, it refuses one whose `action` references a catalog entry it does not know, or whose `params` do not validate against that entry (§8).
 11. **Preconditions.** It refuses an overture carrying a precondition it does not understand (§7).

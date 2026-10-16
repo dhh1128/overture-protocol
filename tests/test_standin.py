@@ -180,3 +180,18 @@ def test_the_script_declines_audience_since_no_entry_can_bind_it_yet():
     o = {"d": "E", "preconditions": {"audience": {"aid": "D" + "A" * 43, "nonce": "n"}}}
     assert policy.plan("E", o, {"$id": "Ex", "title": "Anything"}) is None
     assert ScriptPolicy({"default": {"audience": True}}).plan("E", o, {"$id": "Ex", "title": "x"})
+
+
+def test_the_command_loads_the_credential_schemas_it_is_given(tmp_path, capsys):
+    from overture.issuing import schema
+    from overture.standin import cli
+    schemer = schema("Licence")
+    folder = tmp_path / "schemas"
+    folder.mkdir()
+    (folder / "licence.json").write_bytes(schemer.raw)
+    (folder / "notes.txt").write_text("not a schema")
+    known = []
+    cli.main(["--data", str(tmp_path / "s"), "--schemas", str(folder)],
+             run=lambda api, h, p: known.append(api))
+    out = capsys.readouterr().out
+    assert f"Schema    {schemer.said}" in out

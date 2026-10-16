@@ -1,7 +1,7 @@
 """Parsing CESR streams into Overture messages with their nests (spec §4.3).
 
-keripy's Parser processes KELs and replies in the stream through the Kevery and Revery it
-is given, and hands each exn, with its signature groups and parsed nests, to an exchanger.
+keripy's Parser processes KELs, replies and TEL events in the stream through the Kevery,
+Revery and Tevery it is given, and hands each exn, with its signature groups and parsed nests, to an exchanger.
 Here that exchanger only collects, so every route keeps its nests (this.i 630f824j).
 """
 
@@ -12,22 +12,25 @@ from keri.core.parsing import Parser
 
 @dataclass
 class Message:
-    """One received exn, with its signature groups and the messages nested in it."""
+    """One received exn or nested ACDC, with its signature groups, its source seals, and the
+    messages nested in it."""
 
     serder: object
     tsgs: list = field(default_factory=list)
     cigars: list = field(default_factory=list)
+    ssts: list = field(default_factory=list)
     nests: list["Message"] = field(default_factory=list)
 
     @classmethod
     def from_parsed(cls, parsed: dict) -> "Message":
         return cls(serder=parsed["serder"], tsgs=list(parsed.get("tsgs") or []),
                    cigars=list(parsed.get("cigars") or []),
+                   ssts=list(parsed.get("ssts") or []),
                    nests=[cls.from_parsed(n) for n in parsed.get("nests") or []])
 
     @property
     def ked(self) -> dict:
-        return self.serder.ked
+        return self.serder.sad
 
     @property
     def said(self) -> str:
@@ -60,8 +63,9 @@ class _Collector:
         self.messages.append(Message.from_parsed(parsed))
 
 
-def parse(stream: bytes, *, kvy=None, rvy=None) -> list[Message]:
-    """Parse ``stream``, letting ``kvy`` and ``rvy`` process its KELs and replies."""
+def parse(stream: bytes, *, kvy=None, rvy=None, tvy=None) -> list[Message]:
+    """Parse ``stream``, letting ``kvy``, ``rvy`` and ``tvy`` process its KELs, replies and
+    TEL events."""
     collector = _Collector()
-    Parser(kvy=kvy, rvy=rvy, exc=collector).parse(ims=bytearray(stream))
+    Parser(kvy=kvy, rvy=rvy, tvy=tvy, exc=collector).parse(ims=bytearray(stream))
     return collector.messages

@@ -15,6 +15,7 @@ from keri.help.helping import toIso8601
 
 from . import catalog as catalogs
 from . import errors, messages, overtures, schemas, verify, wire
+from .evidence import Evidence
 from .errors import Refusal
 from .store import Record, Store
 
@@ -75,7 +76,7 @@ class Agent:
     def __init__(self, hab, principal: str, store: Store, policy: Policy, *,
                  entries: dict | None = None, majors=(1,),
                  window=datetime.timedelta(seconds=300), max_size=1_000_000,
-                 keep=datetime.timedelta(days=30), clock=None):
+                 keep=datetime.timedelta(days=30), clock=None, reger=None):
         self.hab = hab
         self.principal = principal
         self.store = store
@@ -87,6 +88,14 @@ class Agent:
         self.keep = keep
         self.clock = clock or (lambda: datetime.datetime.now(datetime.UTC))
         self.kvy = Kevery(db=hab.db, lax=False, local=False, rvy=getattr(hab, "rvy", None))
+        self.evidence = Evidence(hab.db, reger=reger)
+
+    def learn_schema(self, schemer) -> None:
+        """Let the agent check attached credentials of this schema (spec §6.1, step 8)."""
+        self.evidence.learn_schema(schemer)
+
+    def close(self) -> None:
+        self.evidence.close()
 
     # --- receiving ------------------------------------------------------------------
 
@@ -104,7 +113,8 @@ class Agent:
         if len(stream) > self.max_size:                                   # 1. bound
             raise Refusal(errors.TOO_LARGE)
         try:                                                              # 2. parse
-            found = wire.parse(stream, kvy=self.kvy, rvy=getattr(self.hab, "rvy", None))
+            found = wire.parse(stream, kvy=self.kvy, rvy=getattr(self.hab, "rvy", None),
+                               tvy=self.evidence.tvy)
         except Exception as ex:
             raise Refusal(errors.MALFORMED, f"The stream does not parse: {ex}.") from None
         found = [m for m in found if m.route.startswith(messages.PREFIX)]
@@ -148,7 +158,7 @@ class Agent:
     def _check_attached(self, msg: wire.Message) -> None:
         for nest in msg.nests:
             if nest.serder.ilk != "exn":
-                continue  # attached ACDC evidence is not yet verified here ~2rcr
+                continue  # an ACDC, checked below only if evidence reaches it
             try:
                 verify.signatures(nest, self.kvy)
             except Refusal as refusal:
@@ -156,8 +166,10 @@ class Agent:
             if nest.route.startswith(messages.PREFIX) and major_of(nest.a) not in self.majors:
                 raise Refusal(errors.VERSION_UNSUPPORTED, "An attached message has an unsupported version.")
             self._check_attached(nest)
+        evidence = [s for o in msg.a.get("overtures", []) for s in o.get("evidence", [])]
+        self.evidence.check(evidence, msg.nests)
         by_said = {n.said: n for n in msg.nests}
-        for o in msg.a["overtures"]:
+        for o in msg.a.get("overtures", []):
             trigger = o.get("triggeredBy")
             if trigger is None:
                 continue
