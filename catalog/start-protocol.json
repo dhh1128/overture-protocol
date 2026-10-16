@@ -1,0 +1,34 @@
+{
+  "$id": "EHYXl9sBe0aHH4p1D6jJQCRi-Aemwp2GoCzhZJyBwvNG",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Start a protocol",
+  "description": "Asks the principal to start the protocol identified by `protocol`, such as an Aries protocol's PIURI, with the requester, in the role `role` if given, with the protocol-specific values in `values`. On completed, when the protocol is carried in KERI exn messages, the result is its first message signed by the agent, as {said}; otherwise completed means the protocol was started by its own means and there is no result.",
+  "version": "1.0.0",
+  "overture": {
+    "gcdSchema": "ELDiEui48xsASGvDcNdsOwPptW0v4i-oN6-75_I1d60c",
+    "acts": [
+      "create relationship"
+    ],
+    "targets": []
+  },
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A URI identifying the protocol and its version."
+    },
+    "role": {
+      "type": "string",
+      "description": "The role the requester asks the principal to take."
+    },
+    "values": {
+      "type": "object",
+      "description": "Values the protocol defines for starting it."
+    }
+  },
+  "required": [
+    "protocol"
+  ],
+  "additionalProperties": false
+}

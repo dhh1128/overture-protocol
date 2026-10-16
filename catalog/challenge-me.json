@@ -1,0 +1,26 @@
+{
+  "$id": "EEwlk_3jAqgZeY0b4Uf6CqwdTOlINTOu48N6fmt564NT",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Challenge me",
+  "description": "Asks the principal to challenge the requester to present a credential under the schema `schema`. The agent answers an admitted overture by sending an IPEX apply, whose p is the exn SAID of the batch that carried the overture. On completed, the result is the apply, as {said}; whether the presentation satisfies the principal is a later matter of IPEX, not of this overture.",
+  "version": "1.0.0",
+  "overture": {
+    "gcdSchema": "ELDiEui48xsASGvDcNdsOwPptW0v4i-oN6-75_I1d60c",
+    "acts": [
+      "observe record"
+    ],
+    "targets": []
+  },
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "pattern": "^(?:[EFGHI][A-P][A-Za-z0-9_-]{42}|0[DEFG][A-D][A-Za-z0-9_-]{85})$",
+      "description": "The SAID of the schema of the credential the requester offers to present."
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "additionalProperties": false
+}

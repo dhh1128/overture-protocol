@@ -1,0 +1,28 @@
+{
+  "$id": "ED1fOFGMn9Pj6BIT2gPm_rOgyCQ4SOTwDlV-zvQjWLwg",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Accept an introduction",
+  "description": "Asks the principal whether it will accept contact from the party whose AID is `from`, about whom the requester is passing on an overture (spec §6.8). The attached original tells the principal exactly what that party sent and nothing more. On completed, the result is the AID the principal chose to be contacted at, with its OOBI, as {aid, oobi}; declined discloses nothing.",
+  "version": "1.0.0",
+  "overture": {
+    "gcdSchema": "ELDiEui48xsASGvDcNdsOwPptW0v4i-oN6-75_I1d60c",
+    "acts": [
+      "create relationship"
+    ],
+    "targets": [
+      "/from"
+    ]
+  },
+  "type": "object",
+  "properties": {
+    "from": {
+      "type": "string",
+      "pattern": "^(?:[BDEFGHI][A-P][A-Za-z0-9_-]{42}|0[DEFG][A-D][A-Za-z0-9_-]{85}|1AA[ABIJ][A-Za-z0-9_-]{44}|1AA[CD][A-Za-z0-9_-]{76}|1AAE[A-Za-z0-9_-]{152})$",
+      "description": "The AID of the party asking to be introduced."
+    }
+  },
+  "required": [
+    "from"
+  ],
+  "additionalProperties": false
+}

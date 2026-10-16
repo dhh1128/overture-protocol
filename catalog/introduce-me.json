@@ -1,0 +1,28 @@
+{
+  "$id": "EPe54zQdfhlqjrd6AbDPhl7LxVKj68dSRJuBQrzNIujy",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Introduce me",
+  "description": "Asks the principal to introduce the requester to the party whose AID is `to`. An agent that acts on it passes the overture on to that party's agent (spec §6.8), asking it with the entry \"Accept an introduction\". completed means the introduction was delivered and the other party consented to be contacted, not that a relationship formed. On completed, the result is the AID the other party chose for the requester to contact, with its OOBI, as {aid, oobi}. The status reports the requester receives say nothing about the other party beyond that result.",
+  "version": "1.0.0",
+  "overture": {
+    "gcdSchema": "ELDiEui48xsASGvDcNdsOwPptW0v4i-oN6-75_I1d60c",
+    "acts": [
+      "create relationship"
+    ],
+    "targets": [
+      "/to"
+    ]
+  },
+  "type": "object",
+  "properties": {
+    "to": {
+      "type": "string",
+      "pattern": "^(?:[BDEFGHI][A-P][A-Za-z0-9_-]{42}|0[DEFG][A-D][A-Za-z0-9_-]{85}|1AA[ABIJ][A-Za-z0-9_-]{44}|1AA[CD][A-Za-z0-9_-]{76}|1AAE[A-Za-z0-9_-]{152})$",
+      "description": "The AID of the party the requester asks to be introduced to."
+    }
+  },
+  "required": [
+    "to"
+  ],
+  "additionalProperties": false
+}

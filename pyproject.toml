@@ -29,6 +29,10 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel]
 packages = ["src/overture"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "overture/data/schemas"
+"catalog" = "overture/data/catalog"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=overture --cov-branch --cov-report=term-missing --cov-fail-under=100"

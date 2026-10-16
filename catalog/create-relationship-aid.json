@@ -1,0 +1,18 @@
+{
+  "$id": "EG5lFIF_A_FAxGUBFGhUhqmVGR5NnIUbA_n71wvt2piy",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Create a relationship AID",
+  "description": "Asks the principal to create a new AID for its relationship with the requester. The new AID's inception event MUST carry, in its a field, a digest seal {d} whose value is the SAID of this overture, which is the new AID's own statement that it is a result of the overture (this.i 564x4rgx). The new AID SHOULD NOT be delegated from the principal, because a delegated AID names its delegator for anyone who resolves it. By default its representation evidence is a GCD credential issued by the principal to the new AID, blinded with u, and disclosed only to the requester by an IPEX grant (spec §8, this.i 7l9nr4dn). On completed, the results are the new AID with its OOBI, as {aid, oobi}, and the IPEX grant, as {said}.",
+  "version": "1.0.0",
+  "overture": {
+    "gcdSchema": "ELDiEui48xsASGvDcNdsOwPptW0v4i-oN6-75_I1d60c",
+    "acts": [
+      "create relationship"
+    ],
+    "targets": []
+  },
+  "type": "object",
+  "properties": {},
+  "required": [],
+  "additionalProperties": false
+}
