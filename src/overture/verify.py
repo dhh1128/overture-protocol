@@ -35,6 +35,8 @@ def signatures(msg, kvy) -> None:
                           f"{sender} signed under event {sn}, and its keys are now at {last.s}.")
         indices = []
         for siger in sigers:
+            if siger.index in indices:
+                raise Refusal(errors.SIGNATURE_INVALID, f"Signature index {siger.index} is repeated.")
             if siger.index >= len(kever.verfers):
                 raise Refusal(errors.SIGNATURE_INVALID, f"Signature index {siger.index} is out of range.")
             if not kever.verfers[siger.index].verify(siger.raw, msg.serder.raw):

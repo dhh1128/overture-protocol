@@ -139,3 +139,18 @@ def test_an_unreadable_time_is_refused(dt):
 
 def test_parse_time_reads_keri_dt():
     assert verify.parse_time("2026-10-15T17:05:00.000000+00:00") == NOW
+
+
+def test_a_repeated_signature_does_not_count_twice_toward_a_threshold(parties):
+    from keri.app import habbing
+    from keri.core.signing import Salter
+    a, p = parties["agent"], parties["principal"]
+    with habbing.openHby(name="multi", temp=True, salt=Salter(raw=b"multisig-salt-00").qb64) as hby:
+        m = hby.makeHab(name="multi", icount=2, isith="2", ncount=2, nsith="2")
+        (msg,), kvy = receive(a, bytes(m.replay()) + bytes(a_batch(m, p)))
+        verify.signatures(msg, kvy)
+        prefixer, number, diger, sigers = msg.tsgs[0]
+        doubled = [sigers[0], sigers[0]]
+        e = refused(errors.SIGNATURE_INVALID, verify.signatures,
+                    wire.Message(serder=msg.serder, tsgs=[(prefixer, number, diger, doubled)]), kvy)
+        assert "repeated" in e.detail
