@@ -385,3 +385,61 @@ Within a major version, a minor version MAY add optional fields, which an older 
 An overture is bound to the major version of the batch that first carried it. A resend MUST use the same major version (§6.5). A message attached inside another is judged by its own version, and an agent that does not support that version refuses the message carrying it.
 
 Because refusal may be silent (§6.4), a binding MAY report an unsupported major version at the transport layer without signing anything, so that a requester can tell a version problem from a policy decision (§10).
+
+## 10. HTTP binding
+
+A requester sends each stream by HTTP `POST` to the agent's endpoint URL (`2mgg0fn7`), the agent's general KERI ingress, not an Overture-specific path; the `/overture/` route inside the message selects Overture. The request body is the whole CESR stream (§4.3): any KELs, TEL events and endpoint replies, then the Overture message framed as a body-with-attachments group, with `Content-Type: application/cesr`. The request MUST NOT carry a `CESR-ATTACHMENT` header.
+
+The agent's answer travels in the body of the response to the `POST` that carried the message, as a CESR stream with `Content-Type: application/cesr` and status `200` (`0y83jfj7`). For a batch the answer is a receipt, followed by a status report if the agent held the exchange open and has one; for a poll or an abort it is a status report. A `204` response means the agent has nothing to send, including when it refuses silently. When the agent refuses a message only because it does not support its major version, it MAY answer `400` with a body of type `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)) whose `supportedMajors` member lists the major versions it supports; nothing in that answer is signed.
+
+Holding the exchange open for `waitUntil` is long polling as described in RFC 6202: the agent holds the response until it has an answer or the time passes. Delivery on the agent's initiative (§6.9) is a `POST` of a status report, framed the same way, to the URL the requester advertised.
+
+*Advice to implementers:* an agent should cap how long it holds a response open and how many it holds per requester AID, and may rate-limit by transport-level identity. keripy's HTTP ingress expects one message in the body with its attachments in a `CESR-ATTACHMENT` header, which is too small for nested messages, and answers every `exn` with `204`. An implementation built on it must accept the whole-stream form at the same URL, recognizable by the absent header, and answer Overture routes inline.
+
+## 11. Security considerations
+
+**Replay and stale keys.** §4.4 makes every engine check each message against the signer's latest establishment event and refuse stale or replayed messages. Without these checks, a thief holding a rotated-out key could have a fresh batch admitted under the requester's AID.
+
+**Retrograde attacks on passed-on messages.** Because nothing is anchored, a signature made before a rotation cannot be told from one made later by a thief holding the old key. So a passed-on message is judged against its signer's current key state, and refused if the signer has rotated since (`3j0mdxh4`). An honest requester that rotates while its overture is being passed on has the hop's overture refused, and the hop must ask it to send again.
+
+**Rotation after admission.** An overture stays admitted if its requester rotates (§6.10). After a rotation forced by compromise, the requester's remedy is to abort its pending overtures under its new key state, which does nothing for an overture already completed (`2j74vu2p`).
+
+**Double execution.** A requester never resends an overture after its `admitted` receipt (§6.6), and an agent never answers `unknown` about an admitted overture before its `keptUntil` time. Together these keep an action that is not idempotent, such as issuing a credential, from running twice because state was lost.
+
+**Malformed and oversized input.** An agent bounds a message's size before parsing it and checks it in the order of §6.1, so that no step trusts input an earlier step has not checked. A malformed batch is refused whole, and refusal before admission costs nothing (§6.4).
+
+**Held connections.** Holding an exchange open is always at the agent's discretion, and only for a message that has passed §6.1's checks, so an unauthenticated flood cannot hold anything open (§10).
+
+**Who answers for the principal.** Overture uses KERI's `agent` endpoint role, which keripy defines although the KERI specification's role list does not yet include it. Some hosts, such as KERIA, already authorize an operator-keyed AID in that role for their own plumbing. If such a host also installs Overture's handlers, that AID answers overtures for the principal, and its `admitted` receipts give notice (`8drpdx72`). A principal using such a host must decide deliberately whether to let it answer overtures. An agent's statements carry only the weight it can prove (§6.10), so a requester relying on notice checks that weight.
+
+**Transport authentication.** A transport signature, such as RFC 9421 over HTTP, authenticates only the transport exchange. The Overture engine bases every decision on the signature on the Overture message, so a transport-layer allow-list cannot stand in for admission (`48r9sm0z`).
+
+**Purpose text.** A stranger writes `purpose`. A person deciding on an overture should be able to see the exact signed overture, never only a summary rendered from it.
+
+**Unknown preconditions and actions.** An agent refuses an overture with a precondition it does not understand (§7) or an action whose entry it does not know (§8), so a later extension is never silently ignored by an earlier agent.
+
+## 12. Privacy considerations
+
+**The decision path.** Nothing in Overture reveals whether policy, a person or nested agents decided (§6.11). Reasons are omitted by default, and a status report shows only `pending` until an outcome. `nextPoll` and response timing can still reveal behind-the-counter facts, such as when a person is available; agents should give coarse or jittered values and may add random delays.
+
+**Status visibility.** Only the requester that sent an overture can see its status; to anyone else it reads as `unknown`, which is also what an overture that was never sent reads as.
+
+**Blinded SAIDs.** An overture's `u` keeps its SAID, which travels in receipts, status reports, `prereqs` and `triggeredBy`, from revealing a guessable overture's content.
+
+**Passing an overture on.** A hop discloses every overture in the message the original arrived in, with their parameters, purposes and evidence SAIDs (`7gcqnese`), and the original's evidence, under that evidence's terms of use (§6.8). A requester controls this by sending an overture it expects to be passed on in its own batch, and by not attaching evidence it does not want re-disclosed.
+
+**Relationship AIDs.** A delegated AID names its delegator for anyone who resolves it, so an action meant to keep the principal unlinkable should not prove representation by delegation from the principal (§8).
+
+**Audience.** The `audience` precondition tells the principal, everyone behind the counter and every hop which relying party the requester will present the result to, and the result may keep that relying party's AID (§7).
+
+**Requester endpoints.** A requester that advertises an endpoint (§6.9) discloses where it can be reached. By default it advertises none and polls.
+
+## Appendix A. Test cases
+
+- **Double-consent introduction** (after Aries RFC 0028). R asks agent A, acting for P: "introduce me to T". A sends T's agent its own overture, attaching R's original unaltered (§6.8). This tests passing an overture on, an outer `finishBy` bounding the inner one, what T may learn about R before consenting (only what R sent in that one batch), how the status reports R receives protect T's privacy, and a result that means "invitation delivered" rather than "relationship formed".
+- **"Start a protocol with me"**, using coin flip (Aries RFC 0193) as the example, with the protocol identified in `params`.
+- **"Challenge me"**: the agent opens an IPEX `apply`, with `p` linking back to the exn that carried the overture.
+- **Revoke and reissue** a license after loss: a prerequisite link (§6.5) and the `admitted` receipt as notice within the interaction (§6.4).
+- **A relationship AID**: an OOBI as the result, with the new AID stating that it is a result of the overture (§6.11), and representation shown without delegation (§8).
+- **Preconditions**: an overture that finishes after its `finishBy`, which the requester judges; an overture carrying a precondition the agent does not understand, refused before admission; and one where the `representative` default rules out a third-party signer (§7).
+- **Lost state**: a poll before `keptUntil` never returns `unknown` for an admitted overture, and a requester's `seen` lets the agent forget early (§6.6).
