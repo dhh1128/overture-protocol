@@ -44,3 +44,23 @@ def test_main_writes_every_vector(tmp_path, generated, capsys):
     assert vectors.main(["--out", str(tmp_path)]) == 0
     assert {p.stem for p in tmp_path.glob("*.json")} == set(generated)
     assert json.loads((tmp_path / "seen.json").read_text())["spec"].startswith("§")
+
+
+def test_every_refusal_code_but_a_change_of_major_appears_in_some_vector(generated):
+    """A change of major (step 9) needs an agent supporting two majors, and only 1 exists."""
+    seen = {e["expect"]["refused"]["code"] for v in generated.values() for e in v["exchanges"]
+            if "refused" in e["expect"]}
+    codes = {v.code for v in vars(errors).values() if isinstance(v, errors.Code)}
+    assert codes - seen == {errors.MAJOR_CHANGED.code}
+
+
+def test_the_message_refusals_vector_covers_steps_one_to_three(generated):
+    steps = {e["expect"]["refused"]["step"] for e in generated["message-refusals"]["exchanges"]
+             if "refused" in e["expect"]}
+    assert steps == {1, 2, 3}
+
+
+def test_a_vector_with_evidence_carries_its_schemas_and_issuer(generated):
+    v = generated["evidence"]
+    assert v["agent"]["schemas"] and v["issuer"]
+    assert "schemas" not in generated["seen"]["agent"]

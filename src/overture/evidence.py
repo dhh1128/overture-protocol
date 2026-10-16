@@ -6,6 +6,8 @@ two gaps the checks here close: it saves a revoked credential rather than refusi
 it never compares a credential's issuer with the controller of the registry that issued it.
 """
 
+import contextlib
+import io
 from types import SimpleNamespace
 
 from keri import kering
@@ -72,7 +74,8 @@ class Evidence:
             raise Refusal(errors.EVIDENCE_REVOKED, f"ACDC {creder.said} is revoked.")
         prefixer, number, diger = nest.ssts[-1]
         try:
-            self.vry.processCredential(creder, prefixer, number, diger)
+            with contextlib.redirect_stdout(io.StringIO()):  # keripy prints what it raises
+                self.vry.processCredential(creder, prefixer, number, diger)
         except kering.MissingSchemaError as ex:
             raise Refusal(errors.EVIDENCE_STATE_MISSING, str(ex)) from None
         except Exception as ex:
