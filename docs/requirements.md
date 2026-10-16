@@ -78,10 +78,13 @@ The agent's first signed report of an outcome fixes it. An abort is answered wit
 **R16. Polling.**
 - Only the requester AID that sent an overture can see its state or outcome. To anyone else it reads as "unknown".
 - A poll MAY reference several overtures. The response gives one state or outcome per overture and is signed once.
-- "Unknown" is always a valid answer, even for an overture that was receipted. A requester MAY send an overture again until it holds an admitted receipt for it, and MUST NOT send it again after that. A requester that gets "unknown" for an admitted overture and still wants the act sends a new overture, with a new nonce, knowing the first may already have been carried out.
-- An overture or a poll MAY carry a `waitUntil` hint, asking the agent to hold the exchange open until a given time. The agent returns the outcome inline if it has one, or else returns when any listed overture's state changes or the time is reached. If the time has already passed when the message arrives, the agent answers at once. The agent may always decline to hold the exchange open.
+- "Unknown" is a valid answer for any overture the agent has not admitted, and for an admitted one once its `keptUntil` time has passed (R13). A requester MAY send an overture again until it holds an admitted receipt for it, and MUST NOT send it again after that. A requester that gets "unknown" for an admitted overture and still wants the act sends a new overture, with a new nonce, knowing the first may already have been carried out.
+- An overture or a poll MAY carry a `waitUntil` hint, asking the agent to hold the exchange open until a given time. The agent returns the outcome inline if it has one, or else returns when any listed overture's state changes or the time is reached. If the time has already passed when the message arrives, the agent answers at once. The agent may always decline to hold the exchange open, and holds it only for a message that has passed the checks of R25.
 - Receipts and status reports MAY carry a suggested time for the next poll.
-- Delivery initiated by the agent is an optional feature of each binding, used only when the requester advertises an endpoint.
+- Delivery initiated by the agent is an optional feature of each binding, used only when the requester advertises an endpoint. A requester advertises one by attaching KERI's own signed endpoint replies to its message: `/end/role/add` for the AID that receives for it, such as a mailbox it chose, and `/loc/scheme` for that AID's URL. These verify themselves and need no commitment (R10). The agent hosts no mailbox for requesters.
+- In the HTTP binding, the agent's answer to a message travels in the body of the response to the POST that carried it, as a CESR stream, and a `204` response means it has nothing to send. Holding the exchange open is long polling as described in [RFC 6202](https://www.rfc-editor.org/rfc/rfc6202).
+
+*Advice to implementers:* an agent should cap how long it holds an exchange open and how many it holds per requester AID. keripy's `HttpEnd` answers every exn with `204`, so an implementation built on it must extend it to answer Overture routes inline.
 
 *Advice to implementers:* a principal who does not want response timing to reveal how it decides can add random delays.
 
