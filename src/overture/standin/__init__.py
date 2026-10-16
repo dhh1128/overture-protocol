@@ -48,13 +48,16 @@ class ScriptPolicy:
 class StandIn:
     """A principal, its agent, and the agent's engine, in one Habery."""
 
-    def __init__(self, hby, url: str, script: dict, store_path: Path | str, *, clock=None, **kwa):
+    def __init__(self, hby, url: str, script: dict, store_path: Path | str, *, clock=None,
+                 stamp: str | None = None, **kwa):
         self.hby = hby
         self.url = url.rstrip("/")
         self.principal = hby.habByName("principal") or hby.makeHab(name="principal")
         self.agent = hby.habByName("agent") or hby.makeHab(name="agent")
-        self.replies = bytes(self.principal.makeEndRole(eid=self.agent.pre, role=Roles.agent))
-        self.replies += bytes(self.agent.makeLocScheme(url=self.url, scheme=self.url.split(":")[0]))
+        self.replies = bytes(self.principal.makeEndRole(eid=self.agent.pre, role=Roles.agent,
+                                                        stamp=stamp))
+        self.replies += bytes(self.agent.makeLocScheme(url=self.url, scheme=self.url.split(":")[0],
+                                                       stamp=stamp))
         hby.psr.parse(ims=bytearray(self.replies))
         self.policy = ScriptPolicy(script, make_aid=self.make_aid)
         self.store = Store(store_path)
