@@ -92,8 +92,8 @@ KELs, TEL events and KERI endpoint replies need no commitment, because each veri
 
 Framing follows CESR v2 (`0xc2dqvw`):
 
-- An Overture message MUST be sent as a body-with-attachments group (count code `-U`, or `--U` when large), with its attachments in one attachment group (`-V` or `--V`).
-- Each attached message that the body commits to, whether a passed-on message, an ACDC of an evidence chain or an attached result, MUST be a nested body-with-attachments group inside that attachment group, carrying its own signatures.
+- An Overture message MUST be sent as a message + attachments group (count code `-B`, or `--B` when large), which encloses the message body, a JSON body inside a non-native body group (`-H` or `--H`), followed by its attachments.
+- Each attached message that the body commits to, whether a passed-on message, an ACDC of an evidence chain or an attached result, MUST be a nested message + attachments group among those attachments, carrying its own signatures.
 - KELs, TEL events and endpoint replies MUST NOT be nested. They are sent before the Overture message in the same stream, as top-level messages, so that the receiver's ordinary KERI processing learns the key state before it verifies the Overture message.
 
 *Advice to implementers:* keripy's parser delivers nested groups to an `exn` handler only for a fixed set of routes, so an implementation built on it must give `/overture/` routes their nests (`630f824j`).
@@ -388,7 +388,7 @@ Because refusal may be silent (§6.4), a binding MAY report an unsupported major
 
 ## 10. HTTP binding
 
-A requester sends each stream by HTTP `POST` to the agent's endpoint URL (`2mgg0fn7`), the agent's general KERI ingress, not an Overture-specific path; the `/overture/` route inside the message selects Overture. The request body is the whole CESR stream (§4.3): any KELs, TEL events and endpoint replies, then the Overture message framed as a body-with-attachments group, with `Content-Type: application/cesr`. The request MUST NOT carry a `CESR-ATTACHMENT` header.
+A requester sends each stream by HTTP `POST` to the agent's endpoint URL (`2mgg0fn7`), the agent's general KERI ingress, not an Overture-specific path; the `/overture/` route inside the message selects Overture. The request body is the whole CESR stream (§4.3): any KELs, TEL events and endpoint replies, then the Overture message framed as a message + attachments group, with `Content-Type: application/cesr`. The request MUST NOT carry a `CESR-ATTACHMENT` header.
 
 The agent's answer travels in the body of the response to the `POST` that carried the message, as a CESR stream with `Content-Type: application/cesr` and status `200` (`0y83jfj7`). For a batch the answer is a receipt, followed by a status report if the agent held the exchange open and has one; for a poll or an abort it is a status report. A `204` response means the agent has nothing to send, including when it refuses silently. When the agent refuses a message only because it does not support its major version, it MAY answer `400` with a body of type `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)) whose `supportedMajors` member lists the major versions it supports; nothing in that answer is signed.
 
