@@ -155,3 +155,21 @@ def test_the_command_starts_a_stand_in_and_keeps_its_identity(tmp_path, capsys):
     assert served == [("127.0.0.1", 5999)]
     assert first.splitlines()[:2] == second.splitlines()[:2]
     assert "http://127.0.0.1:5999/oobi/" in first and "https://agent.example/oobi/" in second
+
+
+def test_the_salt_and_its_directory_are_owner_only(tmp_path):
+    import os
+    from overture.standin import cli
+    data = tmp_path / "standin"
+    cli.main(["--data", str(data)], run=lambda *a: None)
+    assert os.stat(data).st_mode & 0o777 == 0o700
+    assert os.stat(data / "salt").st_mode & 0o777 == 0o600
+
+
+def test_an_existing_salt_is_tightened_to_owner_only(tmp_path):
+    import os
+    from overture.standin import cli
+    (tmp_path / "salt").write_text("0AAAAAAAAAAAAAAAAAAAAAAA")
+    os.chmod(tmp_path / "salt", 0o644)
+    assert cli.salt(tmp_path) == "0AAAAAAAAAAAAAAAAAAAAAAA"
+    assert os.stat(tmp_path / "salt").st_mode & 0o777 == 0o600
