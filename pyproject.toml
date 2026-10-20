@@ -7,8 +7,10 @@ requires-python = ">=3.14"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Daniel Hardman" }]
 dependencies = [
-    # keripy's main branch, pinned by commit: the PyPI releases predate v2 exn (this.i 3wj8v5dl).
-    "keri @ git+https://github.com/WebOfTrust/keripy@0f1966f8809df30cb292774e7d04f365742e9328",
+    # Unpinned here on purpose: the commit pin lives in [tool.uv.sources], which uv honours only
+    # when this project is the one being built. A consumer that already pins keripy (imbu takes
+    # heti's bakobo/keripy, which contains 0f1966f8) then resolves one keri instead of two.
+    "keri",
     "jsonschema>=4.26",
     "falcon>=4.3",
 ]
@@ -25,6 +27,10 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.uv.sources]
+# keripy's main branch, pinned by commit: the PyPI releases predate v2 exn (this.i 3wj8v5dl).
+keri = { git = "https://github.com/WebOfTrust/keripy", rev = "0f1966f8809df30cb292774e7d04f365742e9328" }
 
 [tool.hatch.metadata]
 allow-direct-references = true
